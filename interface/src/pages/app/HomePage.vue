@@ -18,18 +18,28 @@
             <p class="text-sm opacity-90">Próximo jogo</p>
             <div class="mt-3 flex items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl flex gap-2 font-bold md:text-3xl">
+                    <h2
+                        class="flex flex-col items-center gap-3 text-lg font-bold md:flex-row md:justify-between md:text-3xl">
                         <div class="flex items-center gap-2">
                             <img v-if="nextMatch?.HomeTeamFlagURL" :src="nextMatch.HomeTeamFlagURL" loading="lazy"
-                                decoding="async" class="inline h-6 w-6 object-contain md:h-10 md:w-10" />
-                            {{ nextMatch?.HomeTeamName || 'A definir' }}
+                                decoding="async" class="h-6 w-6 object-contain md:h-10 md:w-10" />
+
+                            <span class="text-center">
+                                {{ nextMatch?.HomeTeamName || 'A definir' }}
+                            </span>
                         </div>
 
-                        x
+                        <span class="rounded-full bg-white/15 px-3 py-1 text-sm font-black md:text-xl">
+                            VS
+                        </span>
+
                         <div class="flex items-center gap-2">
-                            {{ nextMatch?.AwayTeamName || 'A definir' }}
+                            <span class="text-center">
+                                {{ nextMatch?.AwayTeamName || 'A definir' }}
+                            </span>
+
                             <img v-if="nextMatch?.AwayTeamFlagURL" :src="nextMatch.AwayTeamFlagURL" loading="lazy"
-                                decoding="async" class="inline h-6 w-6 object-contain md:h-10 md:w-10" />
+                                decoding="async" class="h-6 w-6 object-contain md:h-10 md:w-10" />
                         </div>
                     </h2>
 
