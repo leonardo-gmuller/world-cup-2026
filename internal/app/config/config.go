@@ -50,17 +50,6 @@ type Server struct {
 	WriteTimeout time.Duration `required:"true" envconfig:"SERVER_WRITE_TIMEOUT"`
 }
 
-type OpenAIConfig struct {
-	APIKey string `required:"true" envconfig:"OPENAI_API_KEY"`
-
-	Model          string `envconfig:"OPENAI_MODEL"`
-	EmbeddingModel string `envconfig:"OPENAI_EMBEDDING_MODEL"`
-
-	Timeout     int     `envconfig:"OPENAI_TIMEOUT_SECONDS"`
-	Temperature float32 `envconfig:"OPENAI_TEMPERATURE"` // 0 to 100
-	TopP        float32 `envconfig:"OPENAI_TOP_P"`       // 0 to 100
-}
-
 type CircuitBreaker struct {
 	Timeout                time.Duration `required:"true" envconfig:"CIRCUIT_BREAKER_TIMEOUT"`
 	SleepWindow            time.Duration `required:"true" envconfig:"CIRCUIT_BREAKER_SLEEP_WINDOW"`
@@ -73,7 +62,7 @@ type Postgres struct {
 	Host         string `envconfig:"DB_HOST"     default:"localhost"`
 	User         string `envconfig:"DB_USER"     default:"postgres"`
 	Password     string `envconfig:"DB_PASSWORD" default:"postgres"`
-	DatabaseName string `envconfig:"DB_NAME"     default:"chatbot_go_ai"`
+	DatabaseName string `envconfig:"DB_NAME"     default:"world_cup_2026"`
 	Port         string `envconfig:"DB_PORT"     default:"5432"`
 }
 

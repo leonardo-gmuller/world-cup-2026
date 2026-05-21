@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { savePrediction, listPredictionsByGroup } from '@/services/predictionService'
+import { listPredictionsByGroup, savePrediction } from '@/services/predictionService'
 
 export const usePredictionStore = defineStore('prediction', {
   state: () => ({
@@ -10,7 +10,6 @@ export const usePredictionStore = defineStore('prediction', {
   actions: {
     async fetchByGroup(groupId) {
       this.loading = true
-
       try {
         this.predictions = await listPredictionsByGroup(groupId)
       } finally {
@@ -20,7 +19,6 @@ export const usePredictionStore = defineStore('prediction', {
 
     async save(payload) {
       this.loading = true
-
       try {
         await savePrediction(payload)
       } finally {

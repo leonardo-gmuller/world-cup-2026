@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getPrediction = `-- name: GetPrediction :one
@@ -169,8 +170,12 @@ func (q *Queries) ListPredictionsByMatch(ctx context.Context, matchID int64) ([]
 }
 
 const listPredictionsByUserAndGroup = `-- name: ListPredictionsByUserAndGroup :many
-SELECT p.id, p.uuid, p.group_id, p.user_id, p.match_id, p.home_score, p.away_score, p.points, p.calculated, p.calculated_at, p.created_at, p.updated_at, p.deleted_at
+SELECT p.id, p.uuid, p.group_id, p.user_id, p.match_id, p.home_score, p.away_score, p.points, p.calculated, p.calculated_at, p.created_at, p.updated_at, p.deleted_at,
+        m.uuid AS match_uuid,
+        g.uuid AS group_uuid
 FROM predictions p
+JOIN matches m ON p.match_id = m.id
+JOIN groups g ON p.group_id = g.id
 WHERE p.group_id = $1
 AND p.user_id = $2
 AND p.deleted_at IS NULL
@@ -182,15 +187,33 @@ type ListPredictionsByUserAndGroupParams struct {
 	UserID  int64
 }
 
-func (q *Queries) ListPredictionsByUserAndGroup(ctx context.Context, arg ListPredictionsByUserAndGroupParams) ([]Prediction, error) {
+type ListPredictionsByUserAndGroupRow struct {
+	ID           int64
+	Uuid         uuid.UUID
+	GroupID      int64
+	UserID       int64
+	MatchID      int64
+	HomeScore    int32
+	AwayScore    int32
+	Points       float64
+	Calculated   bool
+	CalculatedAt pgtype.Timestamptz
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
+	DeletedAt    pgtype.Timestamptz
+	MatchUuid    uuid.UUID
+	GroupUuid    uuid.UUID
+}
+
+func (q *Queries) ListPredictionsByUserAndGroup(ctx context.Context, arg ListPredictionsByUserAndGroupParams) ([]ListPredictionsByUserAndGroupRow, error) {
 	rows, err := q.db.Query(ctx, listPredictionsByUserAndGroup, arg.GroupID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Prediction
+	var items []ListPredictionsByUserAndGroupRow
 	for rows.Next() {
-		var i Prediction
+		var i ListPredictionsByUserAndGroupRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
@@ -205,6 +228,8 @@ func (q *Queries) ListPredictionsByUserAndGroup(ctx context.Context, arg ListPre
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.MatchUuid,
+			&i.GroupUuid,
 		); err != nil {
 			return nil, err
 		}

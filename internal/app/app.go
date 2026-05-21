@@ -97,6 +97,7 @@ func (a *App) NewPredictionUseCase(dbtx postgres.DBTX) prediction_usecase.Predic
 	return prediction_usecase.NewPredictionUseCase(
 		prediction_repository.NewPredictionRepository(dbtx),
 		match_repository.NewMatchRepository(dbtx),
+		group_repository.NewGroupRepository(dbtx),
 	)
 }
 

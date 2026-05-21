@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	match_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/match"
@@ -14,7 +15,7 @@ func (c *Client) FetchWorldCupMatches(
 ) ([]match_usecase.ExternalMatchOutput, error) {
 
 	url := fmt.Sprintf(
-		"%s/fixtures?league=1&season=2026",
+		"%s/competitions/WC/matches",
 		c.baseURL,
 	)
 
@@ -28,7 +29,7 @@ func (c *Client) FetchWorldCupMatches(
 		return nil, err
 	}
 
-	req.Header.Set("x-apisports-key", c.apiKey)
+	req.Header.Set("X-Auth-Token", c.apiKey)
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -37,7 +38,8 @@ func (c *Client) FetchWorldCupMatches(
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("football api returned status %d", resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("football api returned status %d, error: %s", resp.StatusCode, string(body))
 	}
 
 	var payload MatchesResponse
@@ -45,5 +47,5 @@ func (c *Client) FetchWorldCupMatches(
 		return nil, err
 	}
 
-	return mapMatches(payload.Response)
+	return mapMatches(payload.Matches)
 }

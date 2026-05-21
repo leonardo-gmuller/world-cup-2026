@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	group_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/group"
@@ -21,7 +20,7 @@ const groupPattern = "/groups"
 func (h *Handler) groupSetupRoutes(router chi.Router) {
 	router.Route(groupPattern, func(r chi.Router) {
 		r.Post("/", h.createGroup())
-		r.Get("/user/{user_id}", h.listGroupsByUser())
+		r.Get("/", h.listGroupsByUser())
 		r.Post("/join", h.joinGroup())
 	})
 }
@@ -62,7 +61,8 @@ func (h *Handler) createGroup() http.HandlerFunc {
 				return err
 			}
 
-			response.Created(schema.GroupResponseFromEntity(out))
+			resp = response.Created(schema.GroupResponseFromEntity(out))
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
 			return nil
 		})
 
@@ -104,7 +104,8 @@ func (h *Handler) joinGroup() http.HandlerFunc {
 				return err
 			}
 
-			response.Created(schema.GroupMemberResponseFromEntity(out))
+			resp = response.Created(schema.GroupMemberResponseFromEntity(out))
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
 			return nil
 		})
 
@@ -122,18 +123,16 @@ func (h *Handler) listGroupsByUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp := &response.Response{}
 
-		userIDParam := chi.URLParam(r, "user_id")
-
-		userID, err := strconv.ParseInt(userIDParam, 10, 64)
-		if err != nil {
-			resp = response.BadRequest(err, "invalid user_id")
+		authUser, ok := middleware.GetAuthUser(r.Context())
+		if !ok {
+			resp := response.Unauthorized()
 			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
 			return
 		}
 
 		usecase := h.app.NewGroupUseCase(h.app.DB.Pool)
 
-		groups, err := usecase.ListGroupsByUserID(r.Context(), userID)
+		groups, err := usecase.ListGroupsByUserID(r.Context(), authUser.ID)
 		if err != nil {
 			resp = response.InternalServerError(err)
 			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)

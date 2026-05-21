@@ -10,9 +10,9 @@ import (
 )
 
 type SavePredictionInput struct {
-	GroupID   int64
+	GroupID   string
 	UserID    int64
-	MatchID   int64
+	MatchID   string
 	HomeScore int
 	AwayScore int
 }
@@ -22,7 +22,22 @@ func (u *PredictionUseCase) SavePrediction(
 	in SavePredictionInput,
 ) (*entity.Prediction, error) {
 
-	match, err := u.matchRepository.GetMatchByID(ctx, in.MatchID)
+	matchUUID, err := uuid.Parse(in.MatchID)
+	if err != nil {
+		return nil, err
+	}
+
+	match, err := u.matchRepository.GetMatchByUUID(ctx, matchUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	groupUUID, err := uuid.Parse(in.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	group, err := u.groupRepository.GetGroupByID(ctx, groupUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -35,12 +50,20 @@ func (u *PredictionUseCase) SavePrediction(
 
 	prediction := entity.Prediction{
 		UUID:      uuid.New(),
-		GroupID:   in.GroupID,
+		GroupID:   group.ID,
 		UserID:    in.UserID,
-		MatchID:   in.MatchID,
+		MatchID:   match.ID,
 		HomeScore: in.HomeScore,
 		AwayScore: in.AwayScore,
 	}
 
-	return u.predictionRepo.UpsertPrediction(ctx, prediction)
+	newPrediction, err := u.predictionRepo.UpsertPrediction(ctx, prediction)
+	if err != nil {
+		return nil, err
+	}
+
+	newPrediction.GroupUUID = group.UUID
+	newPrediction.MatchUUID = match.UUID
+
+	return newPrediction, nil
 }

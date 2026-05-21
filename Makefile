@@ -5,6 +5,7 @@ PROJECT ?= world-cup-2026
 DOCKER_COMPOSE_FILE_BUILD=build/docker-compose.yml
 
 DOCKER_COMPOSE_FILE_LOCAL=docker-compose.yml
+DOCKER_COMPOSE_FILE_DEV=docker-compose.dev.yml
 
 GOLANGCI_LINT_PATH=$$(go env GOPATH)/bin/golangci-lint
 GOLANGCI_LINT_VERSION=1.59.0
@@ -33,6 +34,19 @@ build-docker:
 start-docker:
 	docker compose -f $(DOCKER_COMPOSE_FILE_LOCAL) -p $(PROJECT) down --remove-orphans
 	docker compose -f $(DOCKER_COMPOSE_FILE_LOCAL) -p $(PROJECT) up --remove-orphans
+
+dev-up:
+	docker compose -f $(DOCKER_COMPOSE_FILE_DEV) -p $(PROJECT)-dev up -d
+
+dev-down:
+	docker compose -f $(DOCKER_COMPOSE_FILE_DEV) -p $(PROJECT)-dev down
+
+dev-reset:
+	docker compose -f $(DOCKER_COMPOSE_FILE_DEV) -p $(PROJECT)-dev down -v
+	docker compose -f $(DOCKER_COMPOSE_FILE_DEV) -p $(PROJECT)-dev up -d
+
+dev-logs:
+	docker compose -f $(DOCKER_COMPOSE_FILE_DEV) -p $(PROJECT)-dev logs -f
 
 mock-repositories:
 	@find internal/app/gateway/postgres/repositories -name '*.go' | grep -v '_test.go' | while read file; do \

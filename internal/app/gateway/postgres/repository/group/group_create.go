@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/sqlc"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/pkg/util"
 )
 
 func (r *GroupRepository) CreateGroup(
@@ -15,7 +16,7 @@ func (r *GroupRepository) CreateGroup(
 	row, err := r.Queries.CreateGroup(ctx, sqlc.CreateGroupParams{
 		Uuid:        group.UUID,
 		Name:        group.Name,
-		Description: pgtype.Text{String: *group.Description, Valid: true},
+		Description: pgtype.Text{String: util.DerefOrEmpty(group.Description), Valid: true},
 		OwnerID:     group.OwnerID,
 		InviteCode:  group.InviteCode,
 	})

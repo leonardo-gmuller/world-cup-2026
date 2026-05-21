@@ -64,7 +64,7 @@ func (h *Handler) savePrediction() http.HandlerFunc {
 				return err
 			}
 
-			response.Created(schema.PredictionResponseFromEntity(out))
+			resp = response.Created(schema.PredictionResponseFromEntity(out))
 			return nil
 		})
 
@@ -91,18 +91,11 @@ func (h *Handler) listUserPredictionsByGroup() http.HandlerFunc {
 
 		groupIDParam := chi.URLParam(r, "group_id")
 
-		groupID, err := strconv.ParseInt(groupIDParam, 10, 64)
-		if err != nil {
-			resp = response.BadRequest(err, "invalid group_id")
-			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
-			return
-		}
-
 		usecase := h.app.NewPredictionUseCase(h.app.DB.Pool)
 
 		predictions, err := usecase.ListPredictionsByUserAndGroup(
 			r.Context(),
-			groupID,
+			groupIDParam,
 			authUser.ID,
 		)
 		if err != nil {

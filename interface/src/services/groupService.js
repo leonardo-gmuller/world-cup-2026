@@ -1,7 +1,7 @@
 import api from '@/services/api'
 
-export async function listMyGroups(userId) {
-  const { data } = await api.get(`/groups/user/${userId}`)
+export async function listMyGroups() {
+  const { data } = await api.get(`/groups`)
   return data
 }
 

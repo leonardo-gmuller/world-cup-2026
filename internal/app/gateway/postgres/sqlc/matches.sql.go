@@ -77,20 +77,49 @@ func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (Match,
 }
 
 const listMatches = `-- name: ListMatches :many
-SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at FROM matches
-WHERE deleted_at IS NULL
-ORDER BY starts_at ASC
+SELECT
+    m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at,
+    ht.flag_url AS home_team_flag_url,
+    at.flag_url AS away_team_flag_url
+FROM matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.deleted_at IS NULL
+ORDER BY m.starts_at ASC
 `
 
-func (q *Queries) ListMatches(ctx context.Context) ([]Match, error) {
+type ListMatchesRow struct {
+	ID              int64
+	Uuid            uuid.UUID
+	ExternalID      pgtype.Text
+	Stage           string
+	GroupName       pgtype.Text
+	HomeTeamID      pgtype.Int8
+	AwayTeamID      pgtype.Int8
+	HomeTeamName    pgtype.Text
+	AwayTeamName    pgtype.Text
+	StartsAt        pgtype.Timestamptz
+	HomeScore       pgtype.Int4
+	AwayScore       pgtype.Int4
+	Status          string
+	WinnerTeamID    pgtype.Int8
+	ImportedAt      pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	DeletedAt       pgtype.Timestamptz
+	HomeTeamFlagUrl pgtype.Text
+	AwayTeamFlagUrl pgtype.Text
+}
+
+func (q *Queries) ListMatches(ctx context.Context) ([]ListMatchesRow, error) {
 	rows, err := q.db.Query(ctx, listMatches)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Match
+	var items []ListMatchesRow
 	for rows.Next() {
-		var i Match
+		var i ListMatchesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
@@ -110,6 +139,8 @@ func (q *Queries) ListMatches(ctx context.Context) ([]Match, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.HomeTeamFlagUrl,
+			&i.AwayTeamFlagUrl,
 		); err != nil {
 			return nil, err
 		}

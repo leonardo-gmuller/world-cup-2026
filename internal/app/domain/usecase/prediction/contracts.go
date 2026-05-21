@@ -58,4 +58,16 @@ type matchRepository interface {
 		ctx context.Context,
 		id int64,
 	) (*entity.Match, error)
+
+	GetMatchByUUID(
+		ctx context.Context,
+		id uuid.UUID,
+	) (*entity.Match, error)
+}
+
+type groupRepository interface {
+	GetGroupByID(
+		ctx context.Context,
+		id uuid.UUID,
+	) (*entity.Group, error)
 }

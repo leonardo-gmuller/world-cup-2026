@@ -35,9 +35,15 @@ DO UPDATE SET
 RETURNING *;
 
 -- name: ListMatches :many
-SELECT * FROM matches
-WHERE deleted_at IS NULL
-ORDER BY starts_at ASC;
+SELECT
+    m.*,
+    ht.flag_url AS home_team_flag_url,
+    at.flag_url AS away_team_flag_url
+FROM matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.deleted_at IS NULL
+ORDER BY m.starts_at ASC;
 
 -- name: ListMatchesByStage :many
 SELECT * FROM matches

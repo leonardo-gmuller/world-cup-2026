@@ -54,7 +54,7 @@ func (h *Handler) register() http.HandlerFunc {
 				return err
 			}
 
-			response.Created(schema.AuthResponseFromUseCase(out))
+			resp = response.Created(schema.AuthResponseFromUseCase(out))
 			return nil
 		})
 
@@ -71,6 +71,7 @@ func (h *Handler) register() http.HandlerFunc {
 		}
 
 		rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+
 	}
 }
 
@@ -102,7 +103,7 @@ func (h *Handler) login() http.HandlerFunc {
 				return err
 			}
 
-			response.OK(schema.AuthResponseFromUseCase(out))
+			resp = response.OK(schema.AuthResponseFromUseCase(out))
 			return nil
 		})
 

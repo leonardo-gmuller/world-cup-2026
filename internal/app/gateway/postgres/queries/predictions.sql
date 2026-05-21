@@ -22,8 +22,12 @@ AND match_id = $3
 AND deleted_at IS NULL;
 
 -- name: ListPredictionsByUserAndGroup :many
-SELECT p.*
+SELECT p.*,
+        m.uuid AS match_uuid,
+        g.uuid AS group_uuid
 FROM predictions p
+JOIN matches m ON p.match_id = m.id
+JOIN groups g ON p.group_id = g.id
 WHERE p.group_id = $1
 AND p.user_id = $2
 AND p.deleted_at IS NULL

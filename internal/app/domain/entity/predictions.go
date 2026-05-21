@@ -20,4 +20,7 @@ type Prediction struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    *time.Time
+
+	GroupUUID uuid.UUID
+	MatchUUID uuid.UUID
 }

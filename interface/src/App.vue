@@ -2,13 +2,12 @@
     <AppSplash v-if="loading" />
 
     <template v-else>
+        <Toast position="top-center" class="app-toast" />
         <RouterView v-slot="{ Component }">
             <Transition name="page" mode="out-in">
                 <component :is="Component" />
             </Transition>
         </RouterView>
-
-        <Toast />
     </template>
 </template>
 

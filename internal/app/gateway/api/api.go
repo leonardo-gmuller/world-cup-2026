@@ -68,6 +68,7 @@ func (api *API) registerRoutes(router *chi.Mux) {
 		publicRouter.Group(func(privateRouter chi.Router) {
 			privateRouter.Use(jwtauth.Verifier(api.app.JWTService.Auth()))
 			privateRouter.Use(jwtauth.Authenticator(api.app.JWTService.Auth()))
+			privateRouter.Use(middleware.Auth)
 
 			handler.RegisterPrivateRoutes(
 				privateRouter,

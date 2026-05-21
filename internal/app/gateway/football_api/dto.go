@@ -1,43 +1,59 @@
 package football_api
 
 type MatchesResponse struct {
-	Response []MatchDTO `json:"response"`
+	Filters     FiltersDTO     `json:"filters"`
+	ResultSet   ResultSetDTO   `json:"resultSet"`
+	Competition CompetitionDTO `json:"competition"`
+	Matches     []MatchDTO     `json:"matches"`
+}
+
+type FiltersDTO struct {
+	Season string `json:"season"`
+}
+
+type ResultSetDTO struct {
+	Count  int    `json:"count"`
+	First  string `json:"first"`
+	Last   string `json:"last"`
+	Played int    `json:"played"`
+}
+
+type CompetitionDTO struct {
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Code   string `json:"code"`
+	Type   string `json:"type"`
+	Emblem string `json:"emblem"`
 }
 
 type MatchDTO struct {
-	Fixture FixtureDTO `json:"fixture"`
-	League  LeagueDTO  `json:"league"`
-	Teams   TeamsDTO   `json:"teams"`
-	Goals   GoalsDTO   `json:"goals"`
-}
-
-type FixtureDTO struct {
-	ID     int64     `json:"id"`
-	Date   string    `json:"date"`
-	Status StatusDTO `json:"status"`
-}
-
-type StatusDTO struct {
-	Short string `json:"short"`
-}
-
-type LeagueDTO struct {
-	Round string `json:"round"`
-}
-
-type TeamsDTO struct {
-	Home TeamDTO `json:"home"`
-	Away TeamDTO `json:"away"`
+	ID       int64    `json:"id"`
+	UTCDate  string   `json:"utcDate"`
+	Status   string   `json:"status"`
+	Matchday *int     `json:"matchday"`
+	Stage    string   `json:"stage"`
+	Group    *string  `json:"group"`
+	HomeTeam TeamDTO  `json:"homeTeam"`
+	AwayTeam TeamDTO  `json:"awayTeam"`
+	Score    ScoreDTO `json:"score"`
 }
 
 type TeamDTO struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Code string `json:"code"`
-	Logo string `json:"logo"`
+	ID        *int64  `json:"id"`
+	Name      *string `json:"name"`
+	ShortName *string `json:"shortName"`
+	TLA       *string `json:"tla"`
+	Crest     *string `json:"crest"`
 }
 
-type GoalsDTO struct {
+type ScoreDTO struct {
+	Winner   *string      `json:"winner"`
+	Duration string       `json:"duration"`
+	FullTime ScoreTimeDTO `json:"fullTime"`
+	HalfTime ScoreTimeDTO `json:"halfTime"`
+}
+
+type ScoreTimeDTO struct {
 	Home *int `json:"home"`
 	Away *int `json:"away"`
 }

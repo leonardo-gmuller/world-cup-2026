@@ -2,9 +2,11 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"strings"
 
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/google/uuid"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/api/rest"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/api/rest/response"
@@ -14,40 +16,59 @@ type contextKey string
 
 const userContextKey contextKey = "auth_user"
 
-type jwtService interface {
-	Validate(token string) (*entity.User, error)
+func Auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, claims, err := jwtauth.FromContext(r.Context())
+		if err != nil || claims == nil {
+			resp := response.Unauthorized()
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		user, err := userFromClaims(claims)
+		if err != nil {
+			resp := response.Unauthorized()
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), userContextKey, user)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
-func Auth(jwt jwtService) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			authHeader := r.Header.Get("Authorization")
+func userFromClaims(claims map[string]interface{}) (*entity.User, error) {
+	var userID int64
 
-			if authHeader == "" {
-				resp := response.Unauthorized()
-				rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
-				return
-			}
+	switch v := claims["user_id"].(type) {
+	case float64:
+		userID = int64(v)
 
-			token := strings.TrimPrefix(authHeader, "Bearer ")
-			if token == authHeader || token == "" {
-				resp := response.Unauthorized()
-				rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
-				return
-			}
+	case int64:
+		userID = v
 
-			user, err := jwt.Validate(token)
-			if err != nil {
-				resp := response.Unauthorized()
-				rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
-				return
-			}
+	case int:
+		userID = int64(v)
 
-			ctx := context.WithValue(r.Context(), userContextKey, user)
-
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
+	default:
+		return nil, fmt.Errorf("invalid user_id")
 	}
+
+	userUUID, ok := claims["uuid"].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid uuid")
+	}
+
+	name, _ := claims["name"].(string)
+	email, _ := claims["email"].(string)
+
+	return &entity.User{
+		ID:    userID,
+		UUID:  uuid.MustParse(userUUID),
+		Name:  name,
+		Email: email,
+	}, nil
 }
 
 func GetAuthUser(ctx context.Context) (*entity.User, bool) {

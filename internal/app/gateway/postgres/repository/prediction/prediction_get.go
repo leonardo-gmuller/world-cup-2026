@@ -54,7 +54,7 @@ func (r *PredictionRepository) ListPredictionsByUserAndGroup(
 
 	items := make([]entity.Prediction, 0, len(rows))
 	for _, row := range rows {
-		items = append(items, *mapPrediction(row))
+		items = append(items, *mapPredictionsByGroup(row))
 	}
 
 	return items, nil

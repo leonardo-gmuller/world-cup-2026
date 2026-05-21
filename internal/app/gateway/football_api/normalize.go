@@ -1,28 +1,40 @@
 package football_api
 
-import "strings"
+import (
+	"strings"
 
-func normalizeStage(round string) string {
-	round = strings.ToLower(round)
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/constants"
+)
 
-	switch {
-	case strings.Contains(round, "group"):
-		return "group_stage"
+func normalizeStage(stage string) string {
+	switch strings.ToUpper(stage) {
 
-	case strings.Contains(round, "round of 16"):
-		return "round_of_16"
+	case "GROUP_STAGE":
+		return constants.StageGroupStage
 
-	case strings.Contains(round, "quarter"):
-		return "quarter_final"
+	case "LAST_64":
+		return constants.StageGroupStage
 
-	case strings.Contains(round, "semi"):
-		return "semi_final"
+	case "LAST_32":
+		return constants.StageRoundOf32
 
-	case strings.Contains(round, "final"):
-		return "final"
+	case "LAST_16":
+		return constants.StageRoundOf16
+
+	case "QUARTER_FINALS":
+		return constants.StageQuarterFinal
+
+	case "SEMI_FINALS":
+		return constants.StageSemiFinal
+
+	case "THIRD_PLACE":
+		return constants.StageThirdPlace
+
+	case "FINAL":
+		return constants.StageFinal
 
 	default:
-		return "group_stage"
+		return constants.StageGroupStage
 	}
 }
 

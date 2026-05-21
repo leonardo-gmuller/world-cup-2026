@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 import AppLayout from '@/layouts/AppLayout.vue'
 
@@ -24,13 +25,13 @@ const routes = [
     component: AppLayout,
     children: [
       { path: '', redirect: '/app/home' },
-      { path: 'home', component: HomePage, meta: { title: 'Home • Bolão Copa 2026'} },
-      { path: 'groups', component: GroupPage, meta: { title: 'Grupos • Bolão Copa 2026'} },
-      { path: 'matches', component: MatchesPage, meta: { title: 'Jogos • Bolão Copa 2026'} },
-      { path: 'predictions', component: PredictionsPage, meta: { title: 'Palpites • Bolão Copa 2026'} },
-      { path: 'ranking', component: RankingPage, meta: { title: 'Ranking • Bolão Copa 2026'} },
-      { path: 'profile', component: ProfilePage, meta: { title: 'Perfil • Bolão Copa 2026'} },
-      { path: 'rules', component: RulesPage, meta: { title: 'Regras • Bolão Copa 2026'} }
+      { path: 'home', component: HomePage, meta: { title: 'Home • Bolão Copa 2026', requiresAuth: true } },
+      { path: 'groups', component: GroupPage, meta: { title: 'Grupos • Bolão Copa 2026', requiresAuth: true } },
+      { path: 'matches', component: MatchesPage, meta: { title: 'Jogos • Bolão Copa 2026', requiresAuth: true } },
+      { path: 'predictions', component: PredictionsPage, meta: { title: 'Palpites • Bolão Copa 2026', requiresAuth: true } },
+      { path: 'ranking', component: RankingPage, meta: { title: 'Ranking • Bolão Copa 2026', requiresAuth: true } },
+      { path: 'profile', component: ProfilePage, meta: { title: 'Perfil • Bolão Copa 2026', requiresAuth: true } },
+      { path: 'rules', component: RulesPage, meta: { title: 'Regras • Bolão Copa 2026', requiresAuth: true } }
     ],
   },
 ]
@@ -40,6 +41,31 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return {
+        top: 0,
+        behavior: 'smooth',
+    }
+  }
+})
+
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+
+  if (to.path === '/login' || to.path === '/register') {
+    if (auth.isAuthenticated) {
+      return '/app/home'
+    }
+    return true
+  }
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return '/login'
+  }
+
+  if (to.meta.guestOnly && auth.isAuthenticated) {
+    return '/app/home'
+  }
 })
 
 router.afterEach((to) => {

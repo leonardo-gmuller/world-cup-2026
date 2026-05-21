@@ -59,7 +59,14 @@
 
         try {
             await auth.login(form)
+
+            toast.success('Login realizado com sucesso.')
             router.push('/app/home')
+        } catch (error) {
+            toast.error(
+                error?.response?.data?.message || 'E-mail ou senha inválidos.',
+                'Erro ao entrar'
+            )
         } finally {
             loading.value = false
         }

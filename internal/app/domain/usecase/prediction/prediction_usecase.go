@@ -10,13 +10,14 @@ import (
 type PredictionUseCase struct {
 	predictionRepo  predictionRepository
 	matchRepository matchRepository
+	groupRepository groupRepository
 }
 
 type PredictionUseCaseInterface interface {
 	SavePrediction(ctx context.Context, in SavePredictionInput) (*entity.Prediction, error)
 	ListPredictionsByUserAndGroup(
 		ctx context.Context,
-		groupID int64,
+		groupID string,
 		userID int64,
 	) ([]entity.Prediction, error)
 
@@ -43,9 +44,11 @@ type PredictionUseCaseInterface interface {
 func NewPredictionUseCase(
 	repo predictionRepository,
 	matchRepo matchRepository,
+	groupRepo groupRepository,
 ) PredictionUseCaseInterface {
 	return &PredictionUseCase{
 		predictionRepo:  repo,
 		matchRepository: matchRepo,
+		groupRepository: groupRepo,
 	}
 }

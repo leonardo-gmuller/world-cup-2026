@@ -40,6 +40,7 @@
                     <ul class="mt-2 space-y-2 text-sm text-slate-600">
                         <li>• Acertar vencedor: <strong>3 pontos</strong></li>
                         <li>• Acertar empate: <strong>3 pontos</strong></li>
+                        <li>• Acertar ao menos um placar de um time: <strong>1 ponto</strong></li>
                         <li>• Acertar placar exato: <strong>5 pontos</strong></li>
                     </ul>
                 </div>
@@ -60,9 +61,11 @@
 
                     <ul class="mt-2 space-y-2 text-sm text-slate-600">
                         <li>• Fase de grupos: <strong>x1</strong></li>
+                        <li>• Fase eliminatória: <strong>x1,5</strong></li>
                         <li>• Oitavas: <strong>x2</strong></li>
                         <li>• Quartas: <strong>x3</strong></li>
                         <li>• Semifinal: <strong>x4</strong></li>
+                        <li>• Disputa de 3º lugar: <strong>x4</strong></li>
                         <li>• Final: <strong>x5</strong></li>
                     </ul>
                 </div>

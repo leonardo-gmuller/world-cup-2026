@@ -1,0 +1,58 @@
+package translations
+
+var TeamNames = map[string]string{
+	"Brazil":             "Brasil",
+	"Germany":            "Alemanha",
+	"France":             "França",
+	"Spain":              "Espanha",
+	"Portugal":           "Portugal",
+	"Argentina":          "Argentina",
+	"England":            "Inglaterra",
+	"United States":      "Estados Unidos",
+	"Mexico":             "México",
+	"Netherlands":        "Holanda",
+	"Belgium":            "Bélgica",
+	"Croatia":            "Croácia",
+	"Switzerland":        "Suíça",
+	"Japan":              "Japão",
+	"South Korea":        "Coreia do Sul",
+	"IR Iran":            "Irã",
+	"Saudi Arabia":       "Arábia Saudita",
+	"Poland":             "Polônia",
+	"Serbia":             "Sérvia",
+	"Denmark":            "Dinamarca",
+	"Morocco":            "Marrocos",
+	"Cameroon":           "Camarões",
+	"Senegal":            "Senegal",
+	"Uruguay":            "Uruguai",
+	"Canada":             "Canadá",
+	"Australia":          "Austrália",
+	"Costa Rica":         "Costa Rica",
+	"Wales":              "País de Gales",
+	"Tunisia":            "Tunísia",
+	"Ghana":              "Gana",
+	"Qatar":              "Catar",
+	"Ecuador":            "Equador",
+	"South Africa":       "África do Sul",
+	"Czechia":            "República Tcheca",
+	"Paraguay":           "Paraguai",
+	"Scotland":           "Escócia",
+	"Ivory Coast":        "Costa do Marfim",
+	"Cape Verde Islands": "Cabo Verde",
+	"Egypt":              "Egito",
+	"New Zealand":        "Nova Zelândia",
+	"Norway":             "Noruega",
+	"Algeria":            "Argélia",
+	"Jordan":             "Jordânia",
+	"Congo DR":           "Congo",
+	"Uzbekistan":         "Uzbequistão",
+	"Turkey":             "Turquia",
+}
+
+func TranslateTeamName(name string) string {
+	if translated, ok := TeamNames[name]; ok {
+		return translated
+	}
+
+	return name
+}

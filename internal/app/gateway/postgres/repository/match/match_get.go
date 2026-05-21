@@ -41,7 +41,7 @@ func (r *MatchRepository) ListMatches(
 
 	items := make([]entity.Match, 0, len(rows))
 	for _, row := range rows {
-		items = append(items, *mapMatch(row))
+		items = append(items, *mapListMatchesRow(row))
 	}
 
 	return items, nil

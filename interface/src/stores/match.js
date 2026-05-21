@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { mockMatches } from '@/mocks/matches'
+import { importMatches, listMatches } from '@/services/matchService'
 
 export const useMatchStore = defineStore('match', {
   state: () => ({
@@ -10,15 +10,21 @@ export const useMatchStore = defineStore('match', {
   actions: {
     async fetchMatches() {
       this.loading = true
-
-      await new Promise((resolve) => setTimeout(resolve, 300))
-
-      this.matches = mockMatches
-      this.loading = false
+      try {
+        this.matches = await listMatches()
+      } finally {
+        this.loading = false
+      }
     },
 
     async importAll() {
-      await this.fetchMatches()
+      this.loading = true
+      try {
+        await importMatches()
+        await this.fetchMatches()
+      } finally {
+        this.loading = false
+      }
     },
   },
 })
