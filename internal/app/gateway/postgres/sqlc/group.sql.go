@@ -12,6 +12,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countGroupsByUserID = `-- name: CountGroupsByUserID :one
+SELECT COUNT(DISTINCT gm.group_id)
+FROM group_members gm
+WHERE gm.user_id = $1
+AND gm.deleted_at IS NULL
+`
+
+func (q *Queries) CountGroupsByUserID(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countGroupsByUserID, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createGroup = `-- name: CreateGroup :one
 INSERT INTO groups (
     uuid, name, description, owner_id, invite_code

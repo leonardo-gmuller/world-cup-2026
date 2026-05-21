@@ -79,3 +79,29 @@ func (r *MatchRepository) ListFinishedMatchesToCalculate(
 
 	return items, nil
 }
+
+func (r *MatchRepository) CountMatches(
+	ctx context.Context,
+) (int64, error) {
+
+	total, err := r.Queries.CountMatches(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func (r *MatchRepository) GetNextMatch(
+	ctx context.Context,
+) (*entity.Match, error) {
+
+	row, err := r.Queries.GetNextMatch(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	match := mapGetNextMatchRow(row)
+
+	return match, nil
+}

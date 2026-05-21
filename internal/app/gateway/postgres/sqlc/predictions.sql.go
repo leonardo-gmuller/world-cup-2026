@@ -12,6 +12,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countPredictionsByUserID = `-- name: CountPredictionsByUserID :one
+SELECT COUNT(*)
+FROM predictions p
+WHERE p.user_id = $1
+AND p.deleted_at IS NULL
+`
+
+func (q *Queries) CountPredictionsByUserID(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countPredictionsByUserID, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getPrediction = `-- name: GetPrediction :one
 SELECT id, uuid, group_id, user_id, match_id, home_score, away_score, points, calculated, calculated_at, created_at, updated_at, deleted_at FROM predictions
 WHERE group_id = $1

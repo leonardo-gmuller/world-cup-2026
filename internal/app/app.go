@@ -7,6 +7,7 @@ import (
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/config"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 	auth_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/auth"
+	dashboard_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/dashboard"
 	group_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/group"
 	jobcontrol_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/jobs_control"
 	match_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/match"
@@ -106,5 +107,13 @@ func (a *App) NewJobControlUseCase(dbtx postgres.DBTX) jobcontrol_usecase.JobCon
 		jobcontrol_repository.NewJobControlRepository(dbtx),
 		a.NewMatchUseCase(dbtx),
 		a.NewPredictionUseCase(dbtx),
+	)
+}
+
+func (a *App) NewDashboardUseCase(dbtx postgres.DBTX) dashboard_usecase.DashboardUseCaseInterface {
+	return dashboard_usecase.NewDashboardUseCase(
+		group_repository.NewGroupRepository(dbtx),
+		match_repository.NewMatchRepository(dbtx),
+		prediction_repository.NewPredictionRepository(dbtx),
 	)
 }

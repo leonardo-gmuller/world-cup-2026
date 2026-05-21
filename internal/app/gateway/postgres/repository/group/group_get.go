@@ -64,3 +64,16 @@ func (r *GroupRepository) ListGroupsByUserID(
 
 	return groups, nil
 }
+
+func (r *GroupRepository) CountGroupsByUserID(
+	ctx context.Context,
+	userID int64,
+) (int64, error) {
+
+	total, err := r.Queries.CountGroupsByUserID(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}

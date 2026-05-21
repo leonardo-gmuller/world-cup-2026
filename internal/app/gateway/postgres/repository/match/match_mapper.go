@@ -159,3 +159,39 @@ func mapListMatchesRow(row sqlc.ListMatchesRow) *entity.Match {
 
 	return match
 }
+
+func mapGetNextMatchRow(
+	row sqlc.GetNextMatchRow,
+) *entity.Match {
+
+	match := mapMatch(sqlc.Match{
+		ID:           row.ID,
+		Uuid:         row.Uuid,
+		ExternalID:   row.ExternalID,
+		Stage:        row.Stage,
+		GroupName:    row.GroupName,
+		HomeTeamID:   row.HomeTeamID,
+		AwayTeamID:   row.AwayTeamID,
+		HomeTeamName: row.HomeTeamName,
+		AwayTeamName: row.AwayTeamName,
+		StartsAt:     row.StartsAt,
+		HomeScore:    row.HomeScore,
+		AwayScore:    row.AwayScore,
+		Status:       row.Status,
+		WinnerTeamID: row.WinnerTeamID,
+		ImportedAt:   row.ImportedAt,
+		CreatedAt:    row.CreatedAt,
+		UpdatedAt:    row.UpdatedAt,
+		DeletedAt:    row.DeletedAt,
+	})
+
+	if row.HomeTeamFlagUrl.Valid {
+		match.HomeTeamFlagURL = &row.HomeTeamFlagUrl.String
+	}
+
+	if row.AwayTeamFlagUrl.Valid {
+		match.AwayTeamFlagURL = &row.AwayTeamFlagUrl.String
+	}
+
+	return match
+}

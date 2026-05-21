@@ -116,3 +116,16 @@ func (r *PredictionRepository) GetStageWeight(
 		CreatedAt:  row.CreatedAt.Time,
 	}, nil
 }
+
+func (r *PredictionRepository) CountPredictionsByUserID(
+	ctx context.Context,
+	userID int64,
+) (int64, error) {
+
+	total, err := r.Queries.CountPredictionsByUserID(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}

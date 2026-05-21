@@ -54,3 +54,9 @@ SET deleted_at = NOW(),
 WHERE group_id = $1
 AND user_id = $2
 AND deleted_at IS NULL;
+
+-- name: CountGroupsByUserID :one
+SELECT COUNT(DISTINCT gm.group_id)
+FROM group_members gm
+WHERE gm.user_id = $1
+AND gm.deleted_at IS NULL;

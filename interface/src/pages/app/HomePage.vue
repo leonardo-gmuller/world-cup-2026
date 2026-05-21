@@ -18,15 +18,23 @@
             <p class="text-sm opacity-90">Próximo jogo</p>
             <div class="mt-3 flex items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold md:text-3xl">
-                        {{ nextMatch?.home_team_name || 'A definir' }}
+                    <h2 class="text-xl flex gap-2 font-bold md:text-3xl">
+                        <div class="flex items-center gap-2">
+                            <img v-if="nextMatch?.HomeTeamFlagURL" :src="nextMatch.HomeTeamFlagURL" loading="lazy"
+                                decoding="async" class="inline h-6 w-6 object-contain md:h-10 md:w-10" />
+                            {{ nextMatch?.HomeTeamName || 'A definir' }}
+                        </div>
+
                         x
-                        {{ nextMatch?.away_team_name || 'A definir' }}
+                        <div class="flex items-center gap-2">
+                            {{ nextMatch?.AwayTeamName || 'A definir' }}
+                            <img v-if="nextMatch?.AwayTeamFlagURL" :src="nextMatch.AwayTeamFlagURL" loading="lazy"
+                                decoding="async" class="inline h-6 w-6 object-contain md:h-10 md:w-10" />
+                        </div>
                     </h2>
 
                     <p class="mt-1 text-sm opacity-90">
-                        {{ nextMatch ? new Date(nextMatch.starts_at).toLocaleString('pt-BR') : 'Nenhum jogo encontrado'
-                        }}
+                        {{ nextMatchDate }}
                     </p>
                 </div>
 
@@ -40,19 +48,19 @@
         <div class="grid grid-cols-3 gap-3">
             <div
                 class="col-span-3 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 text-white shadow-sm">
-                <p class="text-sm opacity-90">Sua posição</p>
+                <p class="text-sm opacity-90">Sua melhor posição</p>
 
                 <div class="mt-2 flex items-end justify-between">
                     <div>
-                        <h2 class="text-5xl font-black">#3</h2>
+                        <h2 class="text-5xl font-black">#{{ rankingPosition }}</h2>
                         <p class="mt-1 text-sm opacity-90">
-                            entre 24 participantes
+                            entre {{ totalPlayers }} participantes
                         </p>
                     </div>
 
                     <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur-sm">
                         <p class="text-xs opacity-80">Pontos</p>
-                        <p class="text-2xl font-bold">128</p>
+                        <p class="text-2xl font-bold">{{ points }}</p>
                     </div>
                 </div>
             </div>
@@ -110,36 +118,37 @@
 <script setup>
 import logo from '@/assets/logo.png';
 import { computed, onMounted } from 'vue'
-import { useGroupStore } from '@/stores/group'
-import { useMatchStore } from '@/stores/match'
-import { usePredictionStore } from '@/stores/prediction'
+import { useDashboardStore } from '@/stores/dashboard';
 
-const groupStore = useGroupStore()
-const matchStore = useMatchStore()
-const predictionStore = usePredictionStore()
+const dashboardStore = useDashboardStore()
 
 onMounted(async () => {
-    await Promise.all([
-        groupStore.fetchGroups(),
-        matchStore.fetchMatches(),
-    ])
-
-    if (groupStore.groups.length > 0) {
-        await predictionStore.fetchByGroup(groupStore.groups[0].id)
-    }
+    await dashboardStore.fetchHome()
 })
 
-const nextMatch = computed(() => {
-    return matchStore.matches.find((match) => {
-        return match.status === 'scheduled'
+const nextMatch = computed(() => dashboardStore.nextMatch)
+const groupsCount = computed(() => dashboardStore.groupsCount)
+const predictionsCount = computed(() => dashboardStore.predictionsCount)
+const matchesCount = computed(() => dashboardStore.matchesCount)
+
+const nextMatchDate = computed(() => {
+    if (!nextMatch.value?.StartsAt) return 'Nenhum jogo encontrado'
+
+    return new Date(nextMatch.value.StartsAt).toLocaleString('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
     })
 })
 
-const predictionsCount = computed(() => {
-    return predictionStore.predictions.length
+const points = computed(() => {
+    return dashboardStore.home?.total_points || 0
 })
 
-const groupsCount = computed(() => {
-    return groupStore.groups.length
+const rankingPosition = computed(() => {
+    return dashboardStore.home?.user_position || '-'
+})
+
+const totalPlayers = computed(() => {
+    return dashboardStore.home?.total_players || 0
 })
 </script>

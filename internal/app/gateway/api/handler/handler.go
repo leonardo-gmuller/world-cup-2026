@@ -89,4 +89,5 @@ func RegisterPrivateRoutes(
 	h.matchSetupRoutes(router)
 	h.predictionSetupRoutes(router)
 	h.rankingSetupRoutes(router)
+	h.dashboardSetupRoutes(router)
 }

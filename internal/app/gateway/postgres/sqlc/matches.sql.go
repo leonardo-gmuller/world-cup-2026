@@ -12,6 +12,19 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countMatches = `-- name: CountMatches :one
+SELECT COUNT(*)
+FROM matches m
+WHERE m.deleted_at IS NULL
+`
+
+func (q *Queries) CountMatches(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countMatches)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getMatchByID = `-- name: GetMatchByID :one
 SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at FROM matches
 WHERE id = $1
@@ -72,6 +85,71 @@ func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (Match,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getNextMatch = `-- name: GetNextMatch :one
+SELECT
+    m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at,
+    ht.flag_url AS home_team_flag_url,
+    at.flag_url AS away_team_flag_url
+FROM matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.deleted_at IS NULL
+AND m.starts_at >= NOW()
+ORDER BY m.starts_at ASC
+LIMIT 1
+`
+
+type GetNextMatchRow struct {
+	ID              int64
+	Uuid            uuid.UUID
+	ExternalID      pgtype.Text
+	Stage           string
+	GroupName       pgtype.Text
+	HomeTeamID      pgtype.Int8
+	AwayTeamID      pgtype.Int8
+	HomeTeamName    pgtype.Text
+	AwayTeamName    pgtype.Text
+	StartsAt        pgtype.Timestamptz
+	HomeScore       pgtype.Int4
+	AwayScore       pgtype.Int4
+	Status          string
+	WinnerTeamID    pgtype.Int8
+	ImportedAt      pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	DeletedAt       pgtype.Timestamptz
+	HomeTeamFlagUrl pgtype.Text
+	AwayTeamFlagUrl pgtype.Text
+}
+
+func (q *Queries) GetNextMatch(ctx context.Context) (GetNextMatchRow, error) {
+	row := q.db.QueryRow(ctx, getNextMatch)
+	var i GetNextMatchRow
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.ExternalID,
+		&i.Stage,
+		&i.GroupName,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
+		&i.HomeTeamName,
+		&i.AwayTeamName,
+		&i.StartsAt,
+		&i.HomeScore,
+		&i.AwayScore,
+		&i.Status,
+		&i.WinnerTeamID,
+		&i.ImportedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.HomeTeamFlagUrl,
+		&i.AwayTeamFlagUrl,
 	)
 	return i, err
 }

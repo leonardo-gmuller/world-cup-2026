@@ -66,3 +66,9 @@ AND EXISTS (
     AND p.deleted_at IS NULL
 )
 ORDER BY m.starts_at ASC;
+
+-- name: CountPredictionsByUserID :one
+SELECT COUNT(*)
+FROM predictions p
+WHERE p.user_id = $1
+AND p.deleted_at IS NULL;
