@@ -18,6 +18,7 @@ type MatchUseCaseInterface interface {
 	GetMatchByUUID(ctx context.Context, id string) (*entity.Match, error)
 	ImportMatches(ctx context.Context) error
 	CalculateFinishedMatches(ctx context.Context) ([]entity.Match, error)
+	HasLiveMatches(ctx context.Context) (bool, error)
 }
 
 func NewMatchUseCase(

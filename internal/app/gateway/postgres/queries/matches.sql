@@ -92,3 +92,11 @@ AND m.starts_at >= NOW()
 
 ORDER BY m.starts_at ASC
 LIMIT 1;
+
+-- name: HasLiveMatches :one
+SELECT EXISTS (
+    SELECT 1
+    FROM matches
+    WHERE deleted_at IS NULL
+    AND status = 'live'
+);

@@ -218,6 +218,22 @@ func (q *Queries) GetNextMatch(ctx context.Context) (GetNextMatchRow, error) {
 	return i, err
 }
 
+const hasLiveMatches = `-- name: HasLiveMatches :one
+SELECT EXISTS (
+    SELECT 1
+    FROM matches
+    WHERE deleted_at IS NULL
+    AND status = 'live'
+)
+`
+
+func (q *Queries) HasLiveMatches(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, hasLiveMatches)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const listMatches = `-- name: ListMatches :many
 SELECT
     m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at,

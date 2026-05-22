@@ -119,3 +119,12 @@ func (r *MatchRepository) ListFinishedMatches(ctx context.Context) ([]entity.Mat
 
 	return items, nil
 }
+
+func (r *MatchRepository) HasLiveMatches(ctx context.Context) (bool, error) {
+	row, err := r.Queries.HasLiveMatches(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return row, nil
+}

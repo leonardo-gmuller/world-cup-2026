@@ -38,6 +38,8 @@ type matchRepository interface {
 	UpsertMatch(ctx context.Context, match entity.Match) (*entity.Match, error)
 
 	ListFinishedMatchesToCalculate(ctx context.Context) ([]entity.Match, error)
+
+	HasLiveMatches(ctx context.Context) (bool, error)
 }
 
 type footballAPIClient interface {
