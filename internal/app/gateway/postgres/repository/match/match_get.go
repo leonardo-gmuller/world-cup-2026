@@ -16,7 +16,7 @@ func (r *MatchRepository) GetMatchByID(
 		return nil, err
 	}
 
-	return mapMatch(row), nil
+	return mapMatchByIDRow(row), nil
 }
 
 func (r *MatchRepository) GetMatchByUUID(
@@ -28,7 +28,7 @@ func (r *MatchRepository) GetMatchByUUID(
 		return nil, err
 	}
 
-	return mapMatch(row), nil
+	return mapMatchByUUIDRow(row), nil
 }
 
 func (r *MatchRepository) ListMatches(

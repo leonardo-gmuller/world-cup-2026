@@ -9,7 +9,11 @@ import (
 
 func (u *MatchUseCase) GetMatchByUUID(
 	ctx context.Context,
-	id uuid.UUID,
+	id string,
 ) (*entity.Match, error) {
-	return u.repo.GetMatchByUUID(ctx, id)
+	matchUUID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	return u.repo.GetMatchByUUID(ctx, matchUUID)
 }

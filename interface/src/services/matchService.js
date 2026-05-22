@@ -10,7 +10,7 @@ export async function listMatchesByStage(stage) {
   return data
 }
 
-export async function importMatches() {
-  const { data } = await api.post('/matches/import')
+export async function getMatchById(id) {
+  const { data } = await api.get(`/matches/${id}`)
   return data
 }

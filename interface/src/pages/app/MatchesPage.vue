@@ -7,8 +7,6 @@
                     Veja os jogos e envie seus palpites.
                 </p>
             </div>
-
-            <Button icon="pi pi-refresh" rounded text :loading="matchStore.loading" @click="matchStore.importAll" />
         </div>
 
         <div class="rounded-3xl bg-white p-4 shadow-sm">
@@ -22,13 +20,13 @@
 
         <div class="flex gap-2 overflow-x-auto pb-1">
             <button v-for="stage in stages" :key="stage.value" type="button" class="
-    shrink-0 rounded-full px-4 py-2 text-sm font-semibold cursor-pointer
-    transform-gpu transition-all duration-150
-    active:scale-95
-  " style="touch-action: manipulation;" :class="selectedStage === stage.value
-    ? 'bg-emerald-600 text-white shadow-md'
-    : 'bg-white text-slate-600 shadow-sm'
-    " @click="selectedStage = stage.value">
+                shrink-0 rounded-full px-4 py-2 text-sm font-semibold cursor-pointer
+                transform-gpu transition-all duration-150
+                active:scale-95
+            " style="touch-action: manipulation;" :class="selectedStage === stage.value
+                ? 'bg-emerald-600 text-white shadow-md'
+                : 'bg-white text-slate-600 shadow-sm'
+                " @click="selectedStage = stage.value">
                 {{ stage.label }}
             </button>
         </div>
@@ -70,14 +68,14 @@
         <div v-else class="space-y-3">
             <MatchCard v-for="(match, index) in filteredMatches" :key="match.id" :match="match"
                 :group-id="selectedGroupId" :delay="index < 12 ? index * 40 : 0" :animated="index < 12"
-                :loading="predictionStore.loading" @save="savePrediction" :prediction="predictionsByMatch[match.id]" />
+                :loading="predictionStore.loading" @save="savePrediction" :prediction="predictionsByMatch[match.id]"
+                @refresh-match="refreshSingleMatch" :loading-match="!!matchStore.loadingMatchIds[match.id]" />
         </div>
     </section>
 </template>
 
 <script setup>
-import { onMounted, ref, computed, watch, nextTick } from 'vue'
-import Button from 'primevue/button'
+import { onMounted, ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import Select from 'primevue/select'
 import MatchCard from '@/components/MatchCard.vue'
 import { Skeleton } from 'primevue'
@@ -121,15 +119,18 @@ const filteredMatches = computed(() => {
 onMounted(async () => {
     await Promise.all([
         matchStore.fetchMatches(),
-        groupStore.fetchGroups(),     
+        groupStore.fetchGroups(),
     ])
 
-     await scrollToMatch()
-
     if (groupStore.groups.length > 0) {
-        selectedGroupId.value = groupStore.groups[0].internal_id || groupStore.groups[0].id
+        selectedGroupId.value =
+            groupStore.groups[0].internal_id || groupStore.groups[0].id
     }
+
+    await nextTick()
+    await scrollToMatch()
 })
+
 
 async function savePrediction(payload) {
     if (!selectedGroupId.value) return
@@ -172,13 +173,15 @@ async function scrollToMatch() {
 
     const element = document.getElementById(`match-${matchId}`)
 
-    console.log('Scrolling to match', matchId, element)
-
     if (element) {
         element.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
         })
     }
+}
+
+async function refreshSingleMatch(matchId) {
+    await matchStore.fetchMatch(matchId)
 }
 </script>

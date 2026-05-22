@@ -26,14 +26,43 @@ func (q *Queries) CountMatches(ctx context.Context) (int64, error) {
 }
 
 const getMatchByID = `-- name: GetMatchByID :one
-SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at FROM matches
-WHERE id = $1
-AND deleted_at IS NULL
+SELECT m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, 
+ht.flag_url AS home_team_flag_url, 
+at.flag_url AS away_team_flag_url 
+FROM 
+matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.id = $1
+AND m.deleted_at IS NULL
 `
 
-func (q *Queries) GetMatchByID(ctx context.Context, id int64) (Match, error) {
+type GetMatchByIDRow struct {
+	ID              int64
+	Uuid            uuid.UUID
+	ExternalID      pgtype.Text
+	Stage           string
+	GroupName       pgtype.Text
+	HomeTeamID      pgtype.Int8
+	AwayTeamID      pgtype.Int8
+	HomeTeamName    pgtype.Text
+	AwayTeamName    pgtype.Text
+	StartsAt        pgtype.Timestamptz
+	HomeScore       pgtype.Int4
+	AwayScore       pgtype.Int4
+	Status          string
+	WinnerTeamID    pgtype.Int8
+	ImportedAt      pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	DeletedAt       pgtype.Timestamptz
+	HomeTeamFlagUrl pgtype.Text
+	AwayTeamFlagUrl pgtype.Text
+}
+
+func (q *Queries) GetMatchByID(ctx context.Context, id int64) (GetMatchByIDRow, error) {
 	row := q.db.QueryRow(ctx, getMatchByID, id)
-	var i Match
+	var i GetMatchByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.Uuid,
@@ -53,19 +82,50 @@ func (q *Queries) GetMatchByID(ctx context.Context, id int64) (Match, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.HomeTeamFlagUrl,
+		&i.AwayTeamFlagUrl,
 	)
 	return i, err
 }
 
 const getMatchByUUID = `-- name: GetMatchByUUID :one
-SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at FROM matches
-WHERE uuid = $1
-AND deleted_at IS NULL
+SELECT m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, 
+ht.flag_url AS home_team_flag_url, 
+at.flag_url AS away_team_flag_url 
+FROM 
+matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.uuid = $1
+AND m.deleted_at IS NULL
 `
 
-func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (Match, error) {
+type GetMatchByUUIDRow struct {
+	ID              int64
+	Uuid            uuid.UUID
+	ExternalID      pgtype.Text
+	Stage           string
+	GroupName       pgtype.Text
+	HomeTeamID      pgtype.Int8
+	AwayTeamID      pgtype.Int8
+	HomeTeamName    pgtype.Text
+	AwayTeamName    pgtype.Text
+	StartsAt        pgtype.Timestamptz
+	HomeScore       pgtype.Int4
+	AwayScore       pgtype.Int4
+	Status          string
+	WinnerTeamID    pgtype.Int8
+	ImportedAt      pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	DeletedAt       pgtype.Timestamptz
+	HomeTeamFlagUrl pgtype.Text
+	AwayTeamFlagUrl pgtype.Text
+}
+
+func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (GetMatchByUUIDRow, error) {
 	row := q.db.QueryRow(ctx, getMatchByUUID, argUuid)
-	var i Match
+	var i GetMatchByUUIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.Uuid,
@@ -85,6 +145,8 @@ func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (Match,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.HomeTeamFlagUrl,
+		&i.AwayTeamFlagUrl,
 	)
 	return i, err
 }

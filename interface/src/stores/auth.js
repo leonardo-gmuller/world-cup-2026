@@ -18,9 +18,6 @@ export const useAuthStore = defineStore('auth', {
       this.token = data.token
       this.user = data.user
 
-      console.log('Token:', data.token)
-      console.log('User:', data.user)
-
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
     },

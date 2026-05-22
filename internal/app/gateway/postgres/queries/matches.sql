@@ -52,14 +52,26 @@ AND deleted_at IS NULL
 ORDER BY starts_at ASC;
 
 -- name: GetMatchByID :one
-SELECT * FROM matches
-WHERE id = $1
-AND deleted_at IS NULL;
+SELECT m.*, 
+ht.flag_url AS home_team_flag_url, 
+at.flag_url AS away_team_flag_url 
+FROM 
+matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.id = $1
+AND m.deleted_at IS NULL;
 
 -- name: GetMatchByUUID :one
-SELECT * FROM matches
-WHERE uuid = $1
-AND deleted_at IS NULL;
+SELECT m.*, 
+ht.flag_url AS home_team_flag_url, 
+at.flag_url AS away_team_flag_url 
+FROM 
+matches m
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+WHERE m.uuid = $1
+AND m.deleted_at IS NULL;
 
 -- name: CountMatches :one
 SELECT COUNT(*)

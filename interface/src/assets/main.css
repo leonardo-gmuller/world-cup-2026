@@ -1,4 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
+
+body {
+    font-family: 'Outfit', sans-serif;
+}
 
 html,
 body,
@@ -93,6 +99,21 @@ body {
   transform: translateY(6px);
 }
 
+.score-pop-enter-active,
+.score-pop-leave-active {
+  transition: all 0.25s ease;
+}
+
+.score-pop-enter-from {
+  opacity: 0;
+  transform: scale(1.25);
+}
+
+.score-pop-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
 .p-toast {
   z-index: 999999 !important;
   width: calc(100vw - 24px) !important;
@@ -101,4 +122,8 @@ body {
 
 .p-toast-top-center {
   top: calc(env(safe-area-inset-top) + 16px) !important;
+}
+
+.score-text {
+    font-family: 'Rajdhani', sans-serif;
 }

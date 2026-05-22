@@ -68,9 +68,9 @@
                         </p>
                     </div>
 
-                    <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur-sm">
+                    <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur-sm text-center">
                         <p class="text-xs opacity-80">Pontos</p>
-                        <p class="text-2xl font-bold">{{ points }}</p>
+                        <p class="text-2xl font-bold score-text">{{ points }}</p>
                     </div>
                 </div>
             </div>
