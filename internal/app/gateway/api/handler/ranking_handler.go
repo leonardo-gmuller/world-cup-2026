@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/api/handler/schema"
@@ -24,16 +23,9 @@ func (h *Handler) getGroupRanking() http.HandlerFunc {
 
 		groupIDParam := chi.URLParam(r, "group_id")
 
-		groupID, err := strconv.ParseInt(groupIDParam, 10, 64)
-		if err != nil {
-			resp = response.BadRequest(err, "invalid group_id")
-			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
-			return
-		}
-
 		usecase := h.app.NewPredictionUseCase(h.app.DB.Pool)
 
-		ranking, err := usecase.GetGroupRanking(r.Context(), groupID)
+		ranking, err := usecase.GetGroupRanking(r.Context(), groupIDParam)
 		if err != nil {
 			resp = response.InternalServerError(err)
 			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)

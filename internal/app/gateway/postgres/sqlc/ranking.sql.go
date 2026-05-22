@@ -64,3 +64,30 @@ func (q *Queries) GetGroupRanking(ctx context.Context, groupID int64) ([]GetGrou
 	}
 	return items, nil
 }
+
+const listGroupIDsByUserID = `-- name: ListGroupIDsByUserID :many
+SELECT gm.group_id
+FROM group_members gm
+WHERE gm.user_id = $1
+AND gm.deleted_at IS NULL
+`
+
+func (q *Queries) ListGroupIDsByUserID(ctx context.Context, userID int64) ([]int64, error) {
+	rows, err := q.db.Query(ctx, listGroupIDsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var group_id int64
+		if err := rows.Scan(&group_id); err != nil {
+			return nil, err
+		}
+		items = append(items, group_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

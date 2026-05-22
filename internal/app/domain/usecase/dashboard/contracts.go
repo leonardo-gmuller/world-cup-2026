@@ -27,6 +27,11 @@ type predictionRepository interface {
 		ctx context.Context,
 		userID int64,
 	) (int64, error)
+
+	GetBestRankingByUserID(
+		ctx context.Context,
+		userID int64,
+	) (*entity.UserRanking, error)
 }
 
 // type rankingRepository interface {

@@ -75,6 +75,8 @@ FROM matches m
 LEFT JOIN teams ht ON ht.id = m.home_team_id
 LEFT JOIN teams at ON at.id = m.away_team_id
 WHERE m.deleted_at IS NULL
+AND m.status = 'scheduled'
 AND m.starts_at >= NOW()
+
 ORDER BY m.starts_at ASC
 LIMIT 1;

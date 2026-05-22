@@ -1,5 +1,6 @@
 <template>
-    <article v-motion="animated ? undefined : false"
+    <article :id="`match-${match.id}`"
+     v-motion="animated ? undefined : false"
         :initial="animated ? { opacity: 0, y: 14, scale: 0.98 } : undefined"
         :enter="animated ? { opacity: 1, y: 0, scale: 1, transition: { delay, duration: 220 } } : undefined"
         class="app-card p-4">
@@ -18,7 +19,7 @@
             </span>
         </div>
 
-        <div class="mt-5 flex items-center justify-between gap-3">
+        <div class="mt-5 flex items-center justify-between gap-3 mr-12">
             <div class="flex-1 text-center">
                 <img v-if="match.home_team_flag_url" :src="match.home_team_flag_url" loading="lazy" decoding="async"
                     class="mx-auto mb-2 h-10 w-10 object-contain" />

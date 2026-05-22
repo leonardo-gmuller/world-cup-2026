@@ -21,6 +21,13 @@ func New(cfg config.Config, useCase useCase) *cli.App {
 					return handler.ImportMatches(ctx.Context)
 				}, handler, types.ImportMatches),
 			},
+			{
+				Name:  string(types.CalculatePredictionPoints),
+				Usage: "Calculate match predictions points",
+				Action: runJobAction(func(ctx *cli.Context) error {
+					return handler.CalculateMatchPredictions(ctx.Context)
+				}, handler, types.CalculatePredictionPoints),
+			},
 		},
 	}
 }

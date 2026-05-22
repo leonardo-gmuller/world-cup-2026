@@ -63,6 +63,8 @@ type matchRepository interface {
 		ctx context.Context,
 		id uuid.UUID,
 	) (*entity.Match, error)
+
+	ListFinishedMatches(ctx context.Context) ([]entity.Match, error)
 }
 
 type groupRepository interface {

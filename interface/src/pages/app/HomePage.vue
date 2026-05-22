@@ -21,24 +21,24 @@
                     <h2
                         class="flex flex-col items-center gap-3 text-lg font-bold md:flex-row md:justify-between md:text-3xl">
                         <div class="flex items-center gap-2">
-                            <img v-if="nextMatch?.HomeTeamFlagURL" :src="nextMatch.HomeTeamFlagURL" loading="lazy"
+                            <img v-if="nextMatch?.home_team_flag" :src="nextMatch.home_team_flag" loading="lazy"
                                 decoding="async" class="h-6 w-6 object-contain md:h-10 md:w-10" />
 
                             <span class="text-center">
-                                {{ nextMatch?.HomeTeamName || 'A definir' }}
+                                {{ nextMatch?.home_team_name || 'A definir' }}
                             </span>
                         </div>
 
                         <span class="rounded-full bg-white/15 px-3 py-1 text-sm font-black md:text-xl">
-                            VS
+                            X
                         </span>
 
                         <div class="flex items-center gap-2">
                             <span class="text-center">
-                                {{ nextMatch?.AwayTeamName || 'A definir' }}
+                                {{ nextMatch?.away_team_name || 'A definir' }}
                             </span>
 
-                            <img v-if="nextMatch?.AwayTeamFlagURL" :src="nextMatch.AwayTeamFlagURL" loading="lazy"
+                            <img v-if="nextMatch?.away_team_flag" :src="nextMatch.away_team_flag" loading="lazy"
                                 decoding="async" class="h-6 w-6 object-contain md:h-10 md:w-10" />
                         </div>
                     </h2>
@@ -48,7 +48,7 @@
                     </p>
                 </div>
 
-                <RouterLink to="/app/matches"
+                <RouterLink :to="`/app/matches?match=${nextMatch?.id}`"
                     class="app-card-button rounded-2xl bg-white/15 px-4 py-2 text-sm font-semibold">
                     Palpitar
                 </RouterLink>
@@ -62,7 +62,7 @@
 
                 <div class="mt-2 flex items-end justify-between">
                     <div>
-                        <h2 class="text-5xl font-black">#{{ rankingPosition }}</h2>
+                        <h2 class="text-5xl font-black">#{{ bestRanking }}</h2>
                         <p class="mt-1 text-sm opacity-90">
                             entre {{ totalPlayers }} participantes
                         </p>
@@ -142,9 +142,9 @@ const predictionsCount = computed(() => dashboardStore.predictionsCount)
 const matchesCount = computed(() => dashboardStore.matchesCount)
 
 const nextMatchDate = computed(() => {
-    if (!nextMatch.value?.StartsAt) return 'Nenhum jogo encontrado'
+    if (!nextMatch.value?.start_at) return 'Nenhum jogo encontrado'
 
-    return new Date(nextMatch.value.StartsAt).toLocaleString('pt-BR', {
+    return new Date(nextMatch.value.start_at).toLocaleString('pt-BR', {
         dateStyle: 'short',
         timeStyle: 'short',
     })
@@ -154,8 +154,8 @@ const points = computed(() => {
     return dashboardStore.home?.total_points || 0
 })
 
-const rankingPosition = computed(() => {
-    return dashboardStore.home?.user_position || '-'
+const bestRanking = computed(() => {
+    return dashboardStore.home?.best_ranking || '-'
 })
 
 const totalPlayers = computed(() => {

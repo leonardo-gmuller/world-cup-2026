@@ -28,7 +28,7 @@ type PredictionUseCaseInterface interface {
 
 	GetGroupRanking(
 		ctx context.Context,
-		groupID int64,
+		groupID string,
 	) ([]RankingItemOutput, error)
 
 	GetPredictionByMatchAndUser(

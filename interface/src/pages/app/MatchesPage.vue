@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed, watch } from 'vue'
+import { onMounted, ref, computed, watch, nextTick } from 'vue'
 import Button from 'primevue/button'
 import Select from 'primevue/select'
 import MatchCard from '@/components/MatchCard.vue'
@@ -85,6 +85,9 @@ import { useMatchStore } from '@/stores/match'
 import { useGroupStore } from '@/stores/group'
 import { usePredictionStore } from '@/stores/prediction'
 import { useAppToast } from '@/utils/toast'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const matchStore = useMatchStore()
 const groupStore = useGroupStore()
@@ -118,8 +121,10 @@ const filteredMatches = computed(() => {
 onMounted(async () => {
     await Promise.all([
         matchStore.fetchMatches(),
-        groupStore.fetchGroups(),
+        groupStore.fetchGroups(),     
     ])
+
+     await scrollToMatch()
 
     if (groupStore.groups.length > 0) {
         selectedGroupId.value = groupStore.groups[0].internal_id || groupStore.groups[0].id
@@ -143,18 +148,37 @@ async function savePrediction(payload) {
 
 
 const predictionsByMatch = computed(() => {
-  const map = {}
+    const map = {}
 
-  predictionStore.predictions.forEach((prediction) => {
-    map[prediction.match_id] = prediction
-  })
+    predictionStore.predictions.forEach((prediction) => {
+        map[prediction.match_id] = prediction
+    })
 
-  return map
+    return map
 })
 
 watch(selectedGroupId, async (groupId) => {
-  if (groupId) {
-    await predictionStore.fetchByGroup(groupId)
-  }
+    if (groupId) {
+        await predictionStore.fetchByGroup(groupId)
+    }
 })
+
+async function scrollToMatch() {
+    const matchId = route.query.match
+
+    if (!matchId) return
+
+    await nextTick()
+
+    const element = document.getElementById(`match-${matchId}`)
+
+    console.log('Scrolling to match', matchId, element)
+
+    if (element) {
+        element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        })
+    }
+}
 </script>

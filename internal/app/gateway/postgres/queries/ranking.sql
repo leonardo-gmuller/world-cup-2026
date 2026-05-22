@@ -16,3 +16,9 @@ AND gm.deleted_at IS NULL
 AND u.deleted_at IS NULL
 GROUP BY u.id, u.uuid, u.name
 ORDER BY total_points DESC, u.name ASC;
+
+-- name: ListGroupIDsByUserID :many
+SELECT gm.group_id
+FROM group_members gm
+WHERE gm.user_id = $1
+AND gm.deleted_at IS NULL;

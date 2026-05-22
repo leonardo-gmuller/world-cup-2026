@@ -129,3 +129,44 @@ func (r *PredictionRepository) CountPredictionsByUserID(
 
 	return total, nil
 }
+
+func (r *PredictionRepository) GetBestRankingByUserID(
+	ctx context.Context,
+	userID int64,
+) (*entity.UserRanking, error) {
+	groupIDs, err := r.Queries.ListGroupIDsByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var best *entity.UserRanking
+
+	for _, groupID := range groupIDs {
+		rows, err := r.Queries.GetGroupRanking(ctx, groupID)
+		if err != nil {
+			return nil, err
+		}
+
+		totalPlayers := len(rows)
+
+		for index, row := range rows {
+			if row.UserID != userID {
+				continue
+			}
+
+			position := index + 1
+
+			if best == nil || position < best.Position {
+				best = &entity.UserRanking{
+					GroupID:      groupID,
+					UserID:       userID,
+					Position:     position,
+					TotalPlayers: int64(totalPlayers),
+					TotalPoints:  int64(row.TotalPoints),
+				}
+			}
+		}
+	}
+
+	return best, nil
+}

@@ -61,10 +61,24 @@ func calculatePredictionPoints(
 ) float64 {
 	basePoints := 0.0
 
-	if predictedHome == realHome && predictedAway == realAway {
+	// placar exato
+	if predictedHome == realHome &&
+		predictedAway == realAway {
 		basePoints = 5
-	} else if getResult(predictedHome, predictedAway) == getResult(realHome, realAway) {
-		basePoints = 3
+	} else {
+		predictedResult := getResult(predictedHome, predictedAway)
+		realResult := getResult(realHome, realAway)
+
+		// acertou vencedor/empate
+		if predictedResult == realResult {
+			basePoints += 3
+		}
+
+		// acertou ao menos um placar
+		if predictedHome == realHome ||
+			predictedAway == realAway {
+			basePoints += 1
+		}
 	}
 
 	return basePoints * weight

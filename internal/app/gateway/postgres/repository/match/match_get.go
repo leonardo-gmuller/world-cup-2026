@@ -105,3 +105,17 @@ func (r *MatchRepository) GetNextMatch(
 
 	return match, nil
 }
+
+func (r *MatchRepository) ListFinishedMatches(ctx context.Context) ([]entity.Match, error) {
+	rows, err := r.Queries.ListFinishedMatchesToCalculate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]entity.Match, 0, len(rows))
+	for _, row := range rows {
+		items = append(items, *mapMatch(row))
+	}
+
+	return items, nil
+}

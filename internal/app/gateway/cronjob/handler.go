@@ -11,6 +11,7 @@ type useCase interface {
 	ImportMatches(ctx context.Context) error
 	CreateJobsControl(ctx context.Context, jobID types.Job) error
 	UpdateJobsControl(ctx context.Context, jobID types.Job) error
+	CalculateMatchPredictions(ctx context.Context) error
 }
 
 type Handler struct {
