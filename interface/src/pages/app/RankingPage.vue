@@ -68,7 +68,7 @@
                     <p class="text-xs text-slate-500">{{ item.predictions_count }} palpites</p>
                 </div>
 
-                <p class="text-lg font-bold text-slate-900">{{ item.total_points }} pts</p>
+                <p class="text-lg font-bold text-slate-900 score-text">{{ item.total_points }} pts</p>
             </article>
         </div>
     </section>
