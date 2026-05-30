@@ -20,7 +20,7 @@ func (u *PredictionUseCase) CalculateMatchPredictions(
 		return erring.ErrMatchWithoutScore
 	}
 
-	if match.Status != constants.MatchStatusFinished {
+	if match.Status != constants.MatchStatusFinished && match.Status != constants.MatchStatusLive {
 		return erring.ErrMatchNotFinished
 	}
 
