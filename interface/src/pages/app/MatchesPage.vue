@@ -183,5 +183,6 @@ async function scrollToMatch() {
 
 async function refreshSingleMatch(matchId) {
     await matchStore.fetchMatch(matchId)
+    await predictionStore.fetchByGroup(selectedGroupId.value)
 }
 </script>
