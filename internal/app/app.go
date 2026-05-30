@@ -19,15 +19,12 @@ import (
 	match_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/match"
 	prediction_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/prediction"
 	user_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/user"
-	redisGt "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/redis"
 )
 
 type App struct {
 	Config config.Config
 
 	DB *postgres.Client
-
-	Queue redisGt.ClientInterface
 
 	HashService hashService
 	JWTService  jwtService
@@ -53,7 +50,6 @@ func New(
 	ctx context.Context,
 	cfg config.Config,
 	db *postgres.Client,
-	queue redisGt.ClientInterface,
 	hashService hashService,
 	jwtService jwtService,
 	footballAPI footballAPIClient,
@@ -61,7 +57,6 @@ func New(
 	return &App{
 		Config:      cfg,
 		DB:          db,
-		Queue:       queue,
 		HashService: hashService,
 		JWTService:  jwtService,
 		FootballAPI: footballAPI,

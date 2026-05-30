@@ -62,7 +62,6 @@ func (api *API) registerRoutes(router *chi.Mux) {
 			publicRouter,
 			api.cfg,
 			api.app,
-			api.app.Queue,
 		)
 
 		publicRouter.Group(func(privateRouter chi.Router) {
@@ -74,7 +73,6 @@ func (api *API) registerRoutes(router *chi.Mux) {
 				privateRouter,
 				api.cfg,
 				api.app,
-				api.app.Queue,
 			)
 		})
 	})
