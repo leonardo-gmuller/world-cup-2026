@@ -37,7 +37,7 @@ type matchRepository interface {
 	UpsertTeam(ctx context.Context, team entity.Team) (*entity.Team, error)
 	UpsertMatch(ctx context.Context, match entity.Match) (*entity.Match, error)
 
-	ListFinishedMatchesToCalculate(ctx context.Context) ([]entity.Match, error)
+	ListFinishedOrLiveMatches(ctx context.Context) ([]entity.Match, error)
 
 	HasLiveMatches(ctx context.Context) (bool, error)
 }

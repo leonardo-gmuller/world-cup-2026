@@ -64,22 +64,6 @@ func (r *MatchRepository) ListMatchesByStage(
 	return items, nil
 }
 
-func (r *MatchRepository) ListFinishedMatchesToCalculate(
-	ctx context.Context,
-) ([]entity.Match, error) {
-	rows, err := r.Queries.ListFinishedMatchesToCalculate(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	items := make([]entity.Match, 0, len(rows))
-	for _, row := range rows {
-		items = append(items, *mapMatch(row))
-	}
-
-	return items, nil
-}
-
 func (r *MatchRepository) CountMatches(
 	ctx context.Context,
 ) (int64, error) {
@@ -106,8 +90,8 @@ func (r *MatchRepository) GetNextMatch(
 	return match, nil
 }
 
-func (r *MatchRepository) ListFinishedMatches(ctx context.Context) ([]entity.Match, error) {
-	rows, err := r.Queries.ListFinishedMatchesToCalculate(ctx)
+func (r *MatchRepository) ListFinishedOrLiveMatches(ctx context.Context) ([]entity.Match, error) {
+	rows, err := r.Queries.ListFinishedOrLiveMatchesToCalculate(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -47,6 +47,7 @@ var TeamNames = map[string]string{
 	"Congo DR":           "Congo",
 	"Uzbekistan":         "Uzbequistão",
 	"Turkey":             "Turquia",
+	"Sweden":             "Suécia",
 }
 
 func TranslateTeamName(name string) string {

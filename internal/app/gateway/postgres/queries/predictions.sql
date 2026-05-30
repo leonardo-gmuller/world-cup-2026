@@ -53,10 +53,10 @@ SET points = $2,
 WHERE id = $1
 AND deleted_at IS NULL;
 
--- name: ListFinishedMatchesToCalculate :many
+-- name: ListFinishedOrLiveMatchesToCalculate :many
 SELECT *
 FROM matches m
-WHERE m.status = 'finished'
+WHERE m.status IN ('finished', 'live')
 AND m.deleted_at IS NULL
 AND EXISTS (
     SELECT 1

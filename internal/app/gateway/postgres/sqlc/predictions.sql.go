@@ -89,10 +89,10 @@ func (q *Queries) GetPredictionByID(ctx context.Context, argUuid uuid.UUID) (Pre
 	return i, err
 }
 
-const listFinishedMatchesToCalculate = `-- name: ListFinishedMatchesToCalculate :many
+const listFinishedOrLiveMatchesToCalculate = `-- name: ListFinishedOrLiveMatchesToCalculate :many
 SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at
 FROM matches m
-WHERE m.status = 'finished'
+WHERE m.status IN ('finished', 'live')
 AND m.deleted_at IS NULL
 AND EXISTS (
     SELECT 1
@@ -104,8 +104,8 @@ AND EXISTS (
 ORDER BY m.starts_at ASC
 `
 
-func (q *Queries) ListFinishedMatchesToCalculate(ctx context.Context) ([]Match, error) {
-	rows, err := q.db.Query(ctx, listFinishedMatchesToCalculate)
+func (q *Queries) ListFinishedOrLiveMatchesToCalculate(ctx context.Context) ([]Match, error) {
+	rows, err := q.db.Query(ctx, listFinishedOrLiveMatchesToCalculate)
 	if err != nil {
 		return nil, err
 	}

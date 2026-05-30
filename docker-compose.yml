@@ -23,7 +23,6 @@ services:
       - bolao-network
 
   frontend:
-    platform: linux/amd64
     build:
       context: .
       dockerfile: infra/docker/frontend.Dockerfile

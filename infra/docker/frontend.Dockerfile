@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20-bookworm-slim AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-FROM --platform=linux/amd64 nginx:1.27-alpine
+FROM nginx:1.27-alpine
 
 COPY interface/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/interface/dist /usr/share/nginx/html

@@ -10,7 +10,7 @@ import (
 func (u *JobControlUsecase) CalculateMatchPredictions(ctx context.Context) error {
 	slog.InfoContext(ctx, "[predictions] starting prediction calculation")
 
-	matches, err := u.matchUsecase.CalculateFinishedMatches(ctx)
+	matches, err := u.matchUsecase.CalculateMatches(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "[predictions] failed fetching finished matches", "error", err)
 		return err

@@ -17,7 +17,7 @@ type MatchUseCaseInterface interface {
 	GetMatchByID(ctx context.Context, id int64) (*entity.Match, error)
 	GetMatchByUUID(ctx context.Context, id string) (*entity.Match, error)
 	ImportMatches(ctx context.Context) error
-	CalculateFinishedMatches(ctx context.Context) ([]entity.Match, error)
+	CalculateMatches(ctx context.Context) ([]entity.Match, error)
 	HasLiveMatches(ctx context.Context) (bool, error)
 }
 
