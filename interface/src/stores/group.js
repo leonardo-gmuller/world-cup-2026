@@ -20,13 +20,11 @@ export const useGroupStore = defineStore('group', {
         async create(payload) {
             await createGroup(payload)
             await this.fetchGroups()
-            toast.success('Grupo criado com sucesso')
         },
 
         async join(inviteCode) {
             await joinGroup({ invite_code: inviteCode })
             await this.fetchGroups()
-            toast.success('Entrou no grupo com sucesso')
         },
     },
 })

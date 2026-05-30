@@ -83,7 +83,7 @@ async function submitJoin() {
     if (!inviteCode.value) return
 
     await groupStore.join(inviteCode.value)
-
+    toast.success('Entrou no grupo com sucesso')
     inviteCode.value = ''
 }
 </script>

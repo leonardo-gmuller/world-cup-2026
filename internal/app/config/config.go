@@ -31,7 +31,6 @@ type Config struct {
 
 	// Infra
 	Postgres    Postgres
-	Redis       RedisConfig
 	Worker      WorkerConfig
 	FootballAPI FootballAPIConfig
 }
@@ -64,13 +63,6 @@ type Postgres struct {
 	Password     string `envconfig:"DB_PASSWORD" default:"postgres"`
 	DatabaseName string `envconfig:"DB_NAME"     default:"world_cup_2026"`
 	Port         string `envconfig:"DB_PORT"     default:"5432"`
-}
-
-type RedisConfig struct {
-	Host     string `envconfig:"REDIS_HOST"     default:"localhost"`
-	Port     string `envconfig:"REDIS_PORT"     default:"6379"`
-	Password string `envconfig:"REDIS_PASSWORD" default:""`
-	DB       int    `envconfig:"REDIS_DB"       default:"0"`
 }
 
 type WorkerConfig struct {

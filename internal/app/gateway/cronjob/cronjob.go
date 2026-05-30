@@ -1,7 +1,7 @@
 package cronjob
 
 import (
-	"fmt"
+	"context"
 	"log/slog"
 
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/config"
@@ -17,40 +17,37 @@ func New(cfg config.Config, useCase useCase) *cli.App {
 			{
 				Name:  string(types.ImportMatches),
 				Usage: "Import matches from external source",
-				Action: runJobAction(func(ctx *cli.Context) error {
-					return handler.ImportMatches(ctx.Context)
-				}, handler, types.ImportMatches),
+				Action: func(ctx *cli.Context) error {
+					return handler.RunJob(ctx.Context, types.ImportMatches, handler.ImportMatches)
+				},
 			},
 			{
 				Name:  string(types.CalculatePredictionPoints),
 				Usage: "Calculate match predictions points",
-				Action: runJobAction(func(ctx *cli.Context) error {
-					return handler.CalculateMatchPredictions(ctx.Context)
-				}, handler, types.CalculatePredictionPoints),
+				Action: func(ctx *cli.Context) error {
+					return handler.RunJob(ctx.Context, types.CalculatePredictionPoints, handler.CalculateMatchPredictions)
+				},
+			},
+			{
+				Name:  "start-scheduler",
+				Usage: "Start the cronjob scheduler to run periodic tasks",
+				Action: func(ctx *cli.Context) error {
+					return handler.StartScheduler(ctx.Context)
+				},
 			},
 		},
 	}
 }
 
-func runJobAction(action cli.ActionFunc, handler *Handler, jobID types.Job) cli.ActionFunc {
-	return func(cliCtx *cli.Context) error {
-		err := handler.useCase.CreateJobsControl(cliCtx.Context, jobID)
-		if err != nil {
-			return fmt.Errorf("%w", err)
-		}
-
-		err = action(cliCtx)
-		if err != nil {
-			slog.ErrorContext(cliCtx.Context, err.Error())
-
-			return fmt.Errorf("%w", err)
-		}
-
-		err = handler.useCase.UpdateJobsControl(cliCtx.Context, jobID)
-		if err != nil {
-			return fmt.Errorf("%w", err)
-		}
-
-		return nil
+func (h *Handler) RunJob(ctx context.Context, jobID types.Job, action func(context.Context) error) error {
+	if err := h.useCase.CreateJobsControl(ctx, jobID); err != nil {
+		return err
 	}
+
+	if err := action(ctx); err != nil {
+		slog.ErrorContext(ctx, err.Error())
+		return err
+	}
+
+	return h.useCase.UpdateJobsControl(ctx, jobID)
 }

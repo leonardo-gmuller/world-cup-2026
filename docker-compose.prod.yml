@@ -1,0 +1,35 @@
+services:
+  api:
+    image: ghcr.io/SEU_USUARIO/world-cup-2026-api:latest
+    container_name: bolao-api
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - bolao-network
+
+  cronjob:
+    image: ghcr.io/SEU_USUARIO/world-cup-2026-cronjob:latest
+    container_name: bolao-cronjob
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - bolao-network
+
+  frontend:
+    image: ghcr.io/SEU_USUARIO/world-cup-2026-frontend:latest
+    container_name: bolao-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - bolao-network
+
+networks:
+  bolao-network:
+    driver: bridge

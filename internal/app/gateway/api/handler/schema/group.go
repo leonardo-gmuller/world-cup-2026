@@ -20,15 +20,10 @@ func (r *CreateGroupRequest) Validate() error {
 }
 
 type JoinGroupRequest struct {
-	UserID     int64  `json:"user_id"`
 	InviteCode string `json:"invite_code"`
 }
 
 func (r *JoinGroupRequest) Validate() error {
-	if r.UserID == 0 {
-		return fmt.Errorf("user_id is required")
-	}
-
 	if r.InviteCode == "" {
 		return fmt.Errorf("invite_code is required")
 	}

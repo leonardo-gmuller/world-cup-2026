@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/erring"
 	group_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/group"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/api/handler/schema"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/api/middleware"
@@ -93,11 +94,18 @@ func (h *Handler) joinGroup() http.HandlerFunc {
 			return
 		}
 
+		authUser, ok := middleware.GetAuthUser(r.Context())
+		if !ok {
+			resp := response.BadRequest(erring.ErrRequestInvalid, erring.ErrRequestInvalid.Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
 		err := h.app.DB.WithTx(r.Context(), func(ctx context.Context, dbtx postgres.DBTX) error {
 			usecase := h.app.NewGroupUseCase(dbtx)
 
 			out, err := usecase.JoinGroup(ctx, group_usecase.JoinGroupInput{
-				UserID:     req.UserID,
+				UserID:     authUser.ID,
 				InviteCode: req.InviteCode,
 			})
 			if err != nil {

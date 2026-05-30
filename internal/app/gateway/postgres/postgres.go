@@ -43,7 +43,7 @@ func New(ctx context.Context, cfg config.Postgres) (*Client, error) {
 	const operation = "Postgres.New"
 
 	connString := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s dbname=%s",
+		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
 		cfg.User,
 		cfg.Password,
 		cfg.Host,
@@ -63,10 +63,10 @@ func New(ctx context.Context, cfg config.Postgres) (*Client, error) {
 
 	// ---- Migrations (mesma lógica que você tinha, só com alias no pacote) ----
 
-	sqlStdlibDB := stdlib.OpenDB(*pgxConfig.ConnConfig)
+	sqlStdlibDB := stdlib.OpenDBFromPool(pool)
 
 	driver, err := pgxmigrate.WithInstance(sqlStdlibDB, &pgxmigrate.Config{
-		DatabaseName: pgxConfig.ConnConfig.Database,
+		DatabaseName: cfg.DatabaseName,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", operation, err)
