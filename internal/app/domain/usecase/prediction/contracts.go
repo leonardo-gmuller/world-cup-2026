@@ -40,6 +40,7 @@ type predictionRepository interface {
 		ctx context.Context,
 		predictionID int64,
 		points float64,
+		calculated bool,
 	) error
 
 	GetStageWeight(

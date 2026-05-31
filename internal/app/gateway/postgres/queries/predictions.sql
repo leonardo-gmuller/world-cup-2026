@@ -12,6 +12,7 @@ DO UPDATE SET
     calculated_at = NULL,
     updated_at = NOW()
 WHERE predictions.calculated = FALSE
+AND predictions.deleted_at IS NULL
 RETURNING *;
 
 -- name: GetPrediction :one
@@ -47,7 +48,7 @@ AND deleted_at IS NULL;
 -- name: UpdatePredictionPoints :exec
 UPDATE predictions
 SET points = $2,
-    calculated = TRUE,
+    calculated = $3,
     calculated_at = NOW(),
     updated_at = NOW()
 WHERE id = $1

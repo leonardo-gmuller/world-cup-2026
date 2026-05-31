@@ -43,7 +43,9 @@ func (u *PredictionUseCase) CalculateMatchPredictions(
 			stageWeight.Weight,
 		)
 
-		err = u.predictionRepo.UpdatePredictionPoints(ctx, prediction.ID, points)
+		calculated := match.Status == constants.MatchStatusFinished
+
+		err = u.predictionRepo.UpdatePredictionPoints(ctx, prediction.ID, points, calculated)
 		if err != nil {
 			return err
 		}

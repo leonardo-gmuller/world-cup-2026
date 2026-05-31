@@ -79,13 +79,15 @@
         <div v-else class="mt-5 grid grid-cols-1 gap-3">
             <div class="rounded-2xl bg-slate-50 p-3 text-center">
                 <p class="text-xs text-slate-500">Seu palpite</p>
-                <p class="mt-1 text-lg font-bold text-slate-900" :class="predictionPoints > 0 ? 'score-text' : ''">
+                <p :key="predictionScore" class="mt-1 text-lg font-bold text-slate-900" :class="predictionPoints > 0 ? 'score-text' : ''">
                     {{ predictionScore }}
                 </p>
-                <p v-if="props.prediction" class="mt-2 text-sm font-bold"
+                <Transition name="score-pop" mode="out-in">
+                <p v-if="props.prediction" :key="predictionPointsText" class="mt-2 text-sm font-bold"
                     :class="predictionPoints > 0 ? 'text-emerald-600 score-text' : 'text-red-500 score-text'">
                     {{ predictionPointsText }}
                 </p>
+                </Transition>
             </div>
         </div>
     </article>

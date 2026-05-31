@@ -258,7 +258,7 @@ func (q *Queries) ListPredictionsByUserAndGroup(ctx context.Context, arg ListPre
 const updatePredictionPoints = `-- name: UpdatePredictionPoints :exec
 UPDATE predictions
 SET points = $2,
-    calculated = TRUE,
+    calculated = $3,
     calculated_at = NOW(),
     updated_at = NOW()
 WHERE id = $1
@@ -266,12 +266,13 @@ AND deleted_at IS NULL
 `
 
 type UpdatePredictionPointsParams struct {
-	ID     int64
-	Points float64
+	ID         int64
+	Points     float64
+	Calculated bool
 }
 
 func (q *Queries) UpdatePredictionPoints(ctx context.Context, arg UpdatePredictionPointsParams) error {
-	_, err := q.db.Exec(ctx, updatePredictionPoints, arg.ID, arg.Points)
+	_, err := q.db.Exec(ctx, updatePredictionPoints, arg.ID, arg.Points, arg.Calculated)
 	return err
 }
 
@@ -289,6 +290,7 @@ DO UPDATE SET
     calculated_at = NULL,
     updated_at = NOW()
 WHERE predictions.calculated = FALSE
+AND predictions.deleted_at IS NULL
 RETURNING id, uuid, group_id, user_id, match_id, home_score, away_score, points, calculated, calculated_at, created_at, updated_at, deleted_at
 `
 
