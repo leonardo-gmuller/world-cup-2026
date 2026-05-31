@@ -1,6 +1,6 @@
 <template>
     <div class="h-dvh overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100">
-        <main ref="contentRef" class="mx-auto h-full w-full max-w-md overflow-y-auto px-4 py-4 md:max-w-2xl lg:max-w-4xl"
+        <main ref="contentRef" class="mx-auto h-full w-full max-w-md overflow-y-auto px-4 py-4 md:max-w-2xl lg:max-w-4xl scroll-container"
             style="padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));">
             <RouterView v-slot="{ Component }">
                 <Transition name="page" mode="out-in">

@@ -5,7 +5,7 @@
         <Toast position="top-center" class="app-toast" />
         <RouterView v-slot="{ Component }">
             <Transition name="page" mode="out-in">
-                <component :is="Component" />
+                <component :is="Component" class="scroll-container" />
             </Transition>
         </RouterView>
     </template>

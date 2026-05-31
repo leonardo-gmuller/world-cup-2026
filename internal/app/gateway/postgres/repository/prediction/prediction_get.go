@@ -156,7 +156,9 @@ func (r *PredictionRepository) GetBestRankingByUserID(
 
 			position := index + 1
 
-			if best == nil || position < best.Position {
+			if best == nil ||
+				position < best.Position ||
+				(position == best.Position && int64(row.TotalPoints) > best.TotalPoints) {
 				best = &entity.UserRanking{
 					GroupID:      groupID,
 					UserID:       userID,

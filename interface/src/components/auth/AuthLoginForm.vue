@@ -15,7 +15,7 @@
         <div>
             <FormField name="password" v-slot="$field">
                 <Password v-bind="$field" placeholder="Senha" toggleMask fluid :feedback="false"
-                    :invalid="$form.password?.invalid" :disabled="loading" />
+                    :invalid="$form.password?.invalid" :disabled="loading" @keyup.enter="handleEnter" />
 
                 <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
                     {{ $field.error?.message }}
@@ -94,6 +94,14 @@ async function submit({ values, valid }) {
         errorMessage.value = 'E-mail ou senha inválidos.'
     } finally {
         loading.value = false
+    }
+}
+
+function handleEnter(event) {
+    const form = event.target.closest('form')
+
+    if (form) {
+        form.requestSubmit()
     }
 }
 </script>
