@@ -43,12 +43,13 @@ func New(ctx context.Context, cfg config.Postgres) (*Client, error) {
 	const operation = "Postgres.New"
 
 	connString := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
+		"user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
 		cfg.User,
 		cfg.Password,
 		cfg.Host,
 		cfg.Port,
 		cfg.DatabaseName,
+		cfg.SSLMode,
 	)
 
 	pgxConfig, err := pgxpool.ParseConfig(connString)

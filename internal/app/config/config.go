@@ -63,6 +63,7 @@ type Postgres struct {
 	Password     string `envconfig:"DB_PASSWORD" default:"postgres"`
 	DatabaseName string `envconfig:"DB_NAME"     default:"world_cup_2026"`
 	Port         string `envconfig:"DB_PORT"     default:"5432"`
+	SSLMode      string `envconfig:"DB_SSLMODE"  default:"disable"`
 }
 
 type WorkerConfig struct {
