@@ -1,6 +1,6 @@
 services:
   api:
-    image: ghcr.io/SEU_USUARIO/world-cup-2026-api:latest
+    image: ghcr.io/leonardo-gmuller/world-cup-2026-api:latest
     container_name: bolao-api
     env_file:
       - .env.production
@@ -11,20 +11,19 @@ services:
       - bolao-network
 
   cronjob:
-    image: ghcr.io/SEU_USUARIO/world-cup-2026-cronjob:latest
+    image: ghcr.io/leonardo-gmuller/world-cup-2026-cronjob:latest
     container_name: bolao-cronjob
     env_file:
       - .env.production
     restart: unless-stopped
+    command: ["start-scheduler"]
     networks:
       - bolao-network
 
   frontend:
-    image: ghcr.io/SEU_USUARIO/world-cup-2026-frontend:latest
+    image: ghcr.io/leonardo-gmuller/world-cup-2026-frontend:latest
     container_name: bolao-frontend
     restart: unless-stopped
-    env_file:
-      - .env.production
     ports:
       - "80:80"
     depends_on:
