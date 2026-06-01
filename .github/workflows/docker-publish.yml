@@ -64,6 +64,6 @@ jobs:
           push: true
           platforms: linux/amd64
           build-args: |
-            VITE_API_URL=/api/v1
+            VITE_API_URL=${{ matrix.name == 'frontend' && '/api/v1/bolao' || '' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
