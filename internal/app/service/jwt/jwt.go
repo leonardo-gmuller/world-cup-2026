@@ -18,13 +18,17 @@ func New(secret string) *Service {
 }
 
 func (s *Service) Generate(user entity.User) (string, error) {
+	now := time.Now()
+
+	ttl := 70 * 24 * time.Hour
+
 	_, tokenString, err := s.auth.Encode(map[string]any{
 		"user_id": user.ID,
 		"uuid":    user.UUID.String(),
 		"name":    user.Name,
 		"email":   user.Email,
-		"exp":     time.Now().Add(24 * time.Hour).Unix(),
-		"iat":     time.Now().Unix(),
+		"exp":     now.Add(ttl).Unix(),
+		"iat":     now.Unix(),
 	})
 
 	return tokenString, err
