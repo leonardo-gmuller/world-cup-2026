@@ -108,6 +108,11 @@
                 <p class="mt-3 font-semibold text-slate-900">Jogos</p>
             </RouterLink>
 
+            <RouterLink to="/app/predictions" class="app-card-button">
+                <i class="pi pi-check-circle text-xl text-emerald-600" />
+                <p class="mt-3 font-semibold text-slate-900">Meus Palpites</p>
+            </RouterLink>
+
             <RouterLink to="/app/ranking" class="app-card-button">
                 <i class="pi pi-chart-bar text-xl text-emerald-600" />
                 <p class="mt-3 font-semibold text-slate-900">Ranking</p>
