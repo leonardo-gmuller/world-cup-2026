@@ -14,6 +14,7 @@ import (
 	prediction_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/prediction"
 	user_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/user"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres"
+	auth_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/auth"
 	group_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/group"
 	jobcontrol_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/job_control"
 	match_repository "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/repository/match"
@@ -65,6 +66,7 @@ func New(
 func (a *App) NewAuthUseCase(dbtx postgres.DBTX) auth_usecase.AuthUseCaseInterface {
 	return auth_usecase.NewAuthUseCase(
 		user_repository.NewUserRepository(dbtx),
+		auth_repository.NewPasswordResetTokenRepository(dbtx),
 		a.HashService,
 		a.JWTService,
 	)

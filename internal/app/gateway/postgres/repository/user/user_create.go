@@ -23,3 +23,14 @@ func (r *UserRepository) CreateUser(
 
 	return mapUser(row), nil
 }
+
+func (r *UserRepository) UpdateUserPassword(
+	ctx context.Context,
+	userID int64,
+	password string,
+) error {
+	return r.Queries.UpdateUserPassword(ctx, sqlc.UpdateUserPasswordParams{
+		ID:           userID,
+		PasswordHash: password,
+	})
+}

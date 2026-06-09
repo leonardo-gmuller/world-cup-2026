@@ -9,44 +9,74 @@
             class="relative z-10 w-full max-w-md rounded-[2rem] border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur-xl">
             <div class="mb-6 text-center">
                 <img :src="logo" class="mx-auto mb-4 w-36 drop-shadow-2xl" />
-                <div v-if="isLogin">
-                    <h1 class="text-2xl font-bold text-white">Entrar no Bolão</h1>
+                <div>
+                    <h1 class="text-2xl font-bold text-white"> {{ title }}</h1>
                     <p class="mt-1 text-sm text-white/70">
-                        Acesse sua conta para enviar seus palpites.
-                    </p>
-                </div>
-                <div v-else>
-                    <h1 class="text-2xl font-bold text-white">Criar conta</h1>
-                    <p class="mt-1 text-sm text-white/70">
-                        Entre no bolão e comece a mandar seus palpites.
+                        {{ subtitle }}
                     </p>
                 </div>
             </div>
 
             <Transition name="fade-slide" mode="out-in">
-                <AuthLoginForm v-if="isLogin" key="login" @change-mode="changeMode" />
-                <AuthRegisterForm v-else key="register" @change-mode="changeMode" />
+                <AuthLoginForm v-if="mode === 'login'" key="login" @change-mode="changeMode" />
+
+                <AuthRegisterForm v-else-if="mode === 'register'" key="register" @change-mode="changeMode" />
+
+                <AuthForgotPasswordForm v-else-if="mode === 'forgot'" key="forgot" />
+
+                <AuthResetPasswordForm v-else key="reset" />
             </Transition>
         </section>
     </main>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import logo from '@/assets/logo.png'
-import AuthLoginForm from '@/components/auth/AuthLoginForm.vue'
-import AuthRegisterForm from '@/components/auth/AuthRegisterForm.vue'
-
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+import logo from '@/assets/logo.png'
+
+import AuthLoginForm from '@/components/auth/AuthLoginForm.vue'
+import AuthRegisterForm from '@/components/auth/AuthRegisterForm.vue'
+import AuthForgotPasswordForm from '@/components/auth/AuthForgotPasswordForm.vue'
+import AuthResetPasswordForm from '@/components/auth/AuthResetPasswordForm.vue'
 
 const route = useRoute()
 const router = useRouter()
 
-const isLogin = computed(() => route.path === '/login')
+const mode = computed(() => {
+    if (route.path === '/register') return 'register'
+    if (route.path === '/forgot-password') return 'forgot'
+    if (route.path === '/reset-password') return 'reset'
+
+    return 'login'
+})
+
+const title = computed(() => {
+    if (mode.value === 'register') return 'Criar conta'
+    if (mode.value === 'forgot') return 'Recuperar senha'
+    if (mode.value === 'reset') return 'Nova senha'
+
+    return 'Entrar no Bolão'
+})
+
+const subtitle = computed(() => {
+    if (mode.value === 'register') {
+        return 'Entre no bolão e comece a mandar seus palpites.'
+    }
+
+    if (mode.value === 'forgot') {
+        return 'Informe seu e-mail para gerar um link de recuperação.'
+    }
+
+    if (mode.value === 'reset') {
+        return 'Defina uma nova senha para acessar sua conta.'
+    }
+
+    return 'Acesse sua conta para enviar seus palpites.'
+})
 
 function changeMode() {
-    router.push(isLogin.value ? '/register' : '/login')
+    router.push(mode.value === 'login' ? '/register' : '/login')
 }
-
 </script>

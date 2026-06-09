@@ -22,6 +22,8 @@ func (h *Handler) authSetupRoutes(router chi.Router) {
 	router.Route(authPattern, func(r chi.Router) {
 		r.Post("/register", h.register())
 		r.Post("/login", h.login())
+		r.Post("/forgot-password", h.forgotPassword())
+		r.Post("/reset-password", h.resetPassword())
 	})
 }
 
@@ -118,6 +120,88 @@ func (h *Handler) login() http.HandlerFunc {
 			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
 			return
 		}
+
+		rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+	}
+}
+
+func (h *Handler) forgotPassword() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		resp := &response.Response{}
+
+		var req schema.ForgotPasswordRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			resp = response.BadRequest(err, fmt.Errorf("invalid payload: %w", err).Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		if err := req.Validate(); err != nil {
+			resp = response.BadRequest(err, err.Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		err := h.app.DB.WithTx(r.Context(), func(ctx context.Context, dbtx postgres.DBTX) error {
+			usecase := h.app.NewAuthUseCase(dbtx)
+
+			_, _ = usecase.ForgotPassword(ctx, auth_usecase.ForgotPasswordInput{
+				Email: req.Email,
+			})
+
+			resp = response.OK(map[string]string{
+				"message": "Se o e-mail existir, um link de recuperação será gerado.",
+			})
+
+			return nil
+		})
+
+		if err != nil {
+			resp = response.BadRequest(err, err.Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+	}
+}
+
+func (h *Handler) resetPassword() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		resp := &response.Response{}
+
+		var req schema.ResetPasswordRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			resp = response.BadRequest(err, fmt.Errorf("invalid payload: %w", err).Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		if err := req.Validate(); err != nil {
+			resp = response.BadRequest(err, err.Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		err := h.app.DB.WithTx(r.Context(), func(ctx context.Context, dbtx postgres.DBTX) error {
+			usecase := h.app.NewAuthUseCase(dbtx)
+
+			return usecase.ResetPassword(ctx, auth_usecase.ResetPasswordInput{
+				Token:                req.Token,
+				Password:             req.Password,
+				PasswordConfirmation: req.PasswordConfirmation,
+			})
+		})
+
+		if err != nil {
+			resp = response.BadRequest(err, err.Error())
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		resp = response.OK(map[string]string{
+			"message": "senha redefinida com sucesso",
+		})
 
 		rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
 	}

@@ -26,6 +26,16 @@ const routes = [
         component: AuthPage,
         meta: { guestOnly: true },
     },
+    {
+        path: '/forgot-password',
+        component: AuthPage,
+        meta: { guestOnly: true },
+    },
+    {
+        path: '/reset-password',
+        component: AuthPage,
+        meta: { guestOnly: true },
+    },
 
     {
         path: '/app',

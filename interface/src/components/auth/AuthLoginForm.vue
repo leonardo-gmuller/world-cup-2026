@@ -26,6 +26,12 @@
         <Button type="submit" class="w-full" icon="pi pi-sign-in" :loading="loading" :disabled="loading"
             label="Entrar" />
 
+        <button type="button"
+            class="w-full text-center text-sm font-medium text-white/60 transition hover:text-white cursor-pointer"
+            @click="router.push('/forgot-password')">
+            Esqueci minha senha
+        </button>
+
         <Transition name="fade-slide">
             <div v-if="errorMessage"
                 class="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">

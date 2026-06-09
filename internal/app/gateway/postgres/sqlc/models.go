@@ -63,6 +63,17 @@ type Match struct {
 	DeletedAt    pgtype.Timestamptz
 }
 
+type PasswordResetToken struct {
+	ID        int64
+	Uuid      uuid.UUID
+	UserID    int64
+	Token     string
+	Used      bool
+	ExpiresAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
+	UsedAt    pgtype.Timestamptz
+}
+
 type Prediction struct {
 	ID           int64
 	Uuid         uuid.UUID
