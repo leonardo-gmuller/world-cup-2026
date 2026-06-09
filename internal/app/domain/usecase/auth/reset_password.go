@@ -2,15 +2,9 @@ package auth_usecase
 
 import (
 	"context"
-	"errors"
 	"time"
-)
 
-var (
-	ErrInvalidResetToken  = errors.New("token inválido")
-	ErrExpiredResetToken  = errors.New("token expirado")
-	ErrUsedResetToken     = errors.New("token já utilizado")
-	ErrPasswordsDontMatch = errors.New("as senhas não conferem")
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/erring"
 )
 
 type ResetPasswordInput struct {
@@ -24,20 +18,20 @@ func (u *AuthUseCase) ResetPassword(
 	in ResetPasswordInput,
 ) error {
 	if in.Password != in.PasswordConfirmation {
-		return ErrPasswordsDontMatch
+		return erring.ErrPasswordsDontMatch
 	}
 
 	resetToken, err := u.passwordResetRepo.GetPasswordResetTokenByToken(ctx, in.Token)
 	if err != nil {
-		return ErrInvalidResetToken
+		return erring.ErrInvalidResetToken
 	}
 
 	if resetToken.Used {
-		return ErrUsedResetToken
+		return erring.ErrUsedResetToken
 	}
 
 	if time.Now().After(resetToken.ExpiresAt) {
-		return ErrExpiredResetToken
+		return erring.ErrExpiredResetToken
 	}
 
 	hashedPassword, err := u.hash.Hash(in.Password)
