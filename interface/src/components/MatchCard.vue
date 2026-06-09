@@ -61,32 +61,48 @@
                 </p>
             </div>
         </div>
+        <div v-if="canPredict" class="mt-5">
+            <div v-if="props.prediction && !editingPrediction" class="rounded-2xl bg-slate-50 p-4 text-center">
+                <p class="text-xs text-slate-500">
+                    Seu palpite
+                </p>
 
-        <form v-if="canPredict" class="mt-5 grid grid-cols-[44px_1fr_44px] items-center gap-3" @submit.prevent="submit">
-            <div></div>
+                <p class="mt-1 text-2xl font-bold text-slate-900 score-text">
+                    {{ predictionScore }}
+                </p>
 
-            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-                <InputNumber v-model="form.home_score" inputClass="text-center" :min="0" fluid />
-
-                <span class="font-bold text-slate-400">x</span>
-
-                <InputNumber v-model="form.away_score" inputClass="text-center" :min="0" fluid />
+                <Button icon="pi pi-pencil" label="Editar" size="small" outlined class="mt-4"
+                    @click="editingPrediction = true" />
             </div>
 
-            <Button type="submit" icon="pi pi-check" :loading="loading" rounded class="!h-11 !w-11 shrink-0" />
-        </form>
+            <form v-else class="grid grid-cols-[44px_1fr_44px] items-center gap-3" @submit.prevent="submit">
+                <div></div>
+
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <InputNumber v-model="form.home_score" inputClass="text-center" :min="0" fluid />
+
+                    <span class="font-bold text-slate-400">x</span>
+
+                    <InputNumber v-model="form.away_score" inputClass="text-center" :min="0" fluid />
+                </div>
+
+                <Button type="submit" :icon="props.prediction ? 'pi pi-refresh' : 'pi pi-check'" :loading="loading"
+                    rounded class="!h-11 !w-11 shrink-0"  />
+            </form>
+        </div>
 
         <div v-else class="mt-5 grid grid-cols-1 gap-3">
             <div class="rounded-2xl bg-slate-50 p-3 text-center">
                 <p class="text-xs text-slate-500">Seu palpite</p>
-                <p :key="predictionScore" class="mt-1 text-lg font-bold text-slate-900" :class="predictionPoints > 0 ? 'score-text' : ''">
+                <p :key="predictionScore" class="mt-1 text-lg font-bold text-slate-900"
+                    :class="predictionPoints > 0 ? 'score-text' : ''">
                     {{ predictionScore }}
                 </p>
                 <Transition name="score-pop" mode="out-in">
-                <p v-if="props.prediction" :key="predictionPointsText" class="mt-2 text-sm font-bold"
-                    :class="predictionPoints > 0 ? 'text-emerald-600 score-text' : 'text-red-500 score-text'">
-                    {{ predictionPointsText }}
-                </p>
+                    <p v-if="props.prediction" :key="predictionPointsText" class="mt-2 text-sm font-bold"
+                        :class="predictionPoints > 0 ? 'text-emerald-600 score-text' : 'text-red-500 score-text'">
+                        {{ predictionPointsText }}
+                    </p>
                 </Transition>
             </div>
         </div>
@@ -210,6 +226,20 @@ const isLive = computed(() => {
 const refreshProgress = computed(() => {
     return ((refreshSeconds - secondsUntilRefresh.value) / refreshSeconds) * 100
 })
+
+const editingPrediction = ref(false)
+
+watch(
+    () => props.prediction,
+    (prediction) => {
+        if (prediction) {
+            form.home_score = prediction.home_score
+            form.away_score = prediction.away_score
+            editingPrediction.value = false
+        }
+    },
+    { immediate: true }
+)
 
 onMounted(() => {
     if (!isLive.value) return
