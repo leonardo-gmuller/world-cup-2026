@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/dto"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 )
 
@@ -51,7 +52,13 @@ type predictionRepository interface {
 	GetGroupRanking(
 		ctx context.Context,
 		groupID int64,
+		stage *string,
 	) ([]RankingItemOutput, error)
+
+	ListPredictionRemindersByUserID(
+		ctx context.Context,
+		userID int64,
+	) ([]dto.PredictionReminderOutput, error)
 }
 
 type matchRepository interface {

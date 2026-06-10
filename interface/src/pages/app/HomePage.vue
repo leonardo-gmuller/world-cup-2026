@@ -13,7 +13,29 @@
                 </h1>
             </div>
         </div>
+        <RouterLink v-if="remindersCount > 0" to="/app/matches"
+            class="block rounded-3xl bg-amber-50 p-4 text-amber-950 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]">
+            <div class="flex items-center gap-3">
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-200">
+                    <i class="pi pi-clock text-amber-800" />
+                </div>
 
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-sm font-bold uppercase text-amber-800">
+                        Ta acabando o tempo
+                    </p>
+                    <p class="font-bold">
+                        {{ remindersCount }} jogo(s) aguardando palpite.
+                    </p>
+
+                    <p class="truncate text-sm text-amber-800">
+                        Próximo: {{ nextReminder?.home_team_name }} x {{ nextReminder?.away_team_name }}
+                    </p>
+                </div>
+
+                <i class="pi pi-chevron-right text-amber-800" />
+            </div>
+        </RouterLink>
         <div class="rounded-3xl bg-emerald-600 p-5 text-white shadow-sm md:p-8">
             <p class="text-sm opacity-90">Próximo jogo</p>
             <div class="mt-3 flex items-center justify-between gap-4">
@@ -134,17 +156,34 @@
 import logo from '@/assets/logo.png';
 import { computed, onMounted } from 'vue'
 import { useDashboardStore } from '@/stores/dashboard';
+import { usePredictionStore } from '@/stores/prediction';
 
 const dashboardStore = useDashboardStore()
+const predictionStore = usePredictionStore()
 
 onMounted(async () => {
     await dashboardStore.fetchHome()
+    await predictionStore.getReminders()
 })
 
 const nextMatch = computed(() => dashboardStore.nextMatch)
 const groupsCount = computed(() => dashboardStore.groupsCount)
 const predictionsCount = computed(() => dashboardStore.predictionsCount)
 const matchesCount = computed(() => dashboardStore.matchesCount)
+const predictionsReminders = computed(() => predictionStore.reminders)
+const reminders = computed(() => predictionStore.reminders)
+const remindersCount = computed(() => predictionStore.reminders.length)
+const nextReminder = computed(() => {
+    if (reminders.value.length === 0) return null
+
+    return reminders.value.reduce((closest, reminder) => {
+        const reminderDate = new Date(reminder.start_at)
+        const closestDate = new Date(closest.start_at)
+
+        return reminderDate < closestDate ? reminder : closest
+    })
+})
+
 
 const nextMatchDate = computed(() => {
     if (!nextMatch.value?.start_at) return 'Nenhum jogo encontrado'

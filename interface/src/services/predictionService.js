@@ -9,3 +9,9 @@ export async function listPredictionsByGroup(groupId) {
   const { data } = await api.get(`/predictions/group/${groupId}`)
   return data
 }
+
+export async function getPredictionReminders() {
+    const { data } = await api.get('/predictions/reminders')
+
+    return data
+}

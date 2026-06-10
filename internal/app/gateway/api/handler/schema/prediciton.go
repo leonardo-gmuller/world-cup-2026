@@ -2,7 +2,9 @@ package schema
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/dto"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 )
 
@@ -66,6 +68,44 @@ func PredictionListResponseFromEntity(predictions []entity.Prediction) []Predict
 
 	for _, prediction := range predictions {
 		items = append(items, PredictionResponseFromEntity(&prediction))
+	}
+
+	return items
+}
+
+type PredictionReminderResponse struct {
+	MatchID         int64     `json:"match_id"`
+	GroupID         int64     `json:"group_id"`
+	GroupName       string    `json:"group_name"`
+	HomeTeamName    string    `json:"home_team_name"`
+	AwayTeamName    string    `json:"away_team_name"`
+	HomeTeamFlagURL string    `json:"home_team_flag_url"`
+	AwayTeamFlagURL string    `json:"away_team_flag_url"`
+	StartsAt        time.Time `json:"starts_at"`
+}
+
+func PredictionReminderResponseFromDto(
+	output dto.PredictionReminderOutput,
+) PredictionReminderResponse {
+	return PredictionReminderResponse{
+		MatchID:         output.MatchID,
+		GroupID:         output.GroupID,
+		GroupName:       output.GroupName,
+		HomeTeamName:    output.HomeTeamName,
+		AwayTeamName:    output.AwayTeamName,
+		HomeTeamFlagURL: output.HomeTeamFlagURL,
+		AwayTeamFlagURL: output.AwayTeamFlagURL,
+		StartsAt:        output.StartsAt,
+	}
+}
+
+func PredictionReminderListResponseFromDto(
+	outputs []dto.PredictionReminderOutput,
+) []PredictionReminderResponse {
+	items := make([]PredictionReminderResponse, 0, len(outputs))
+
+	for _, output := range outputs {
+		items = append(items, PredictionReminderResponseFromDto(output))
 	}
 
 	return items

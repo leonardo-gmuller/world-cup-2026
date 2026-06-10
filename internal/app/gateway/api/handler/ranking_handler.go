@@ -23,9 +23,16 @@ func (h *Handler) getGroupRanking() http.HandlerFunc {
 
 		groupIDParam := chi.URLParam(r, "group_id")
 
+		stageParam := r.URL.Query().Get("stage")
+
+		var stage *string
+		if stageParam != "" {
+			stage = &stageParam
+		}
+
 		usecase := h.app.NewPredictionUseCase(h.app.DB.Pool)
 
-		ranking, err := usecase.GetGroupRanking(r.Context(), groupIDParam)
+		ranking, err := usecase.GetGroupRanking(r.Context(), groupIDParam, stage)
 		if err != nil {
 			resp = response.InternalServerError(err)
 			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)

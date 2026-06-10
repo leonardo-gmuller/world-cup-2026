@@ -11,9 +11,12 @@ LEFT JOIN predictions p
     ON p.user_id = u.id 
     AND p.group_id = gm.group_id
     AND p.deleted_at IS NULL
+LEFT JOIN matches m
+    ON m.id = p.match_id
 WHERE gm.group_id = $1
 AND gm.deleted_at IS NULL
 AND u.deleted_at IS NULL
+AND (sqlc.narg(stage)::text IS NULL OR m.stage = sqlc.narg(stage))
 GROUP BY u.id, u.uuid, u.name
 ORDER BY total_points DESC, u.name ASC;
 

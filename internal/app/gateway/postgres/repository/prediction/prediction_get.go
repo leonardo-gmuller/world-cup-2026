@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/dto"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 	prediction_usecase "github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/usecase/prediction"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/sqlc"
@@ -80,8 +82,23 @@ func (r *PredictionRepository) ListPredictionsByMatch(
 func (r *PredictionRepository) GetGroupRanking(
 	ctx context.Context,
 	groupID int64,
+	stage *string,
 ) ([]prediction_usecase.RankingItemOutput, error) {
-	rows, err := r.Queries.GetGroupRanking(ctx, groupID)
+	stageParam := pgtype.Text{
+		Valid: false,
+	}
+
+	if stage != nil {
+		stageParam = pgtype.Text{
+			String: *stage,
+			Valid:  true,
+		}
+	}
+
+	rows, err := r.Queries.GetGroupRanking(ctx, sqlc.GetGroupRankingParams{
+		GroupID: groupID,
+		Stage:   stageParam,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +159,10 @@ func (r *PredictionRepository) GetBestRankingByUserID(
 	var best *entity.UserRanking
 
 	for _, groupID := range groupIDs {
-		rows, err := r.Queries.GetGroupRanking(ctx, groupID)
+		rows, err := r.Queries.GetGroupRanking(ctx, sqlc.GetGroupRankingParams{
+			GroupID: groupID,
+			Stage:   pgtype.Text{String: "", Valid: false},
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -171,4 +191,31 @@ func (r *PredictionRepository) GetBestRankingByUserID(
 	}
 
 	return best, nil
+}
+
+func (r *PredictionRepository) ListPredictionRemindersByUserID(
+	ctx context.Context,
+	userID int64,
+) ([]dto.PredictionReminderOutput, error) {
+	rows, err := r.Queries.ListPredictionRemindersByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]dto.PredictionReminderOutput, 0, len(rows))
+
+	for _, row := range rows {
+		items = append(items, dto.PredictionReminderOutput{
+			MatchID:         row.MatchID,
+			GroupID:         row.GroupID,
+			GroupName:       row.GroupName,
+			HomeTeamName:    row.HomeTeamName.String,
+			AwayTeamName:    row.AwayTeamName.String,
+			HomeTeamFlagURL: row.HomeTeamFlagUrl.String,
+			AwayTeamFlagURL: row.AwayTeamFlagUrl.String,
+			StartsAt:        row.StartsAt.Time,
+		})
+	}
+
+	return items, nil
 }

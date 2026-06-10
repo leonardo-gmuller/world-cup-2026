@@ -143,6 +143,78 @@ func (q *Queries) ListFinishedOrLiveMatchesToCalculate(ctx context.Context) ([]M
 	return items, nil
 }
 
+const listPredictionRemindersByUserID = `-- name: ListPredictionRemindersByUserID :many
+SELECT
+    m.id AS match_id,
+    gm.group_id,
+    g.name AS group_name,
+    m.home_team_name,
+    m.away_team_name,
+    ht.flag_url AS home_team_flag_url,
+    at.flag_url AS away_team_flag_url,
+    m.starts_at
+FROM group_members gm
+INNER JOIN groups g
+    ON g.id = gm.group_id
+    AND g.deleted_at IS NULL
+INNER JOIN matches m
+    ON m.deleted_at IS NULL
+    AND m.status = 'scheduled'
+    AND m.starts_at > NOW() + INTERVAL '5 minutes'
+    AND m.starts_at <= NOW() + INTERVAL '48 hours'
+LEFT JOIN teams ht ON ht.id = m.home_team_id
+LEFT JOIN teams at ON at.id = m.away_team_id
+LEFT JOIN predictions p
+    ON p.group_id = gm.group_id
+    AND p.user_id = gm.user_id
+    AND p.match_id = m.id
+    AND p.deleted_at IS NULL
+WHERE gm.user_id = $1
+AND gm.deleted_at IS NULL
+AND p.id IS NULL
+ORDER BY m.starts_at ASC, g.name ASC
+`
+
+type ListPredictionRemindersByUserIDRow struct {
+	MatchID         int64
+	GroupID         int64
+	GroupName       string
+	HomeTeamName    pgtype.Text
+	AwayTeamName    pgtype.Text
+	HomeTeamFlagUrl pgtype.Text
+	AwayTeamFlagUrl pgtype.Text
+	StartsAt        pgtype.Timestamptz
+}
+
+func (q *Queries) ListPredictionRemindersByUserID(ctx context.Context, userID int64) ([]ListPredictionRemindersByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, listPredictionRemindersByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPredictionRemindersByUserIDRow
+	for rows.Next() {
+		var i ListPredictionRemindersByUserIDRow
+		if err := rows.Scan(
+			&i.MatchID,
+			&i.GroupID,
+			&i.GroupName,
+			&i.HomeTeamName,
+			&i.AwayTeamName,
+			&i.HomeTeamFlagUrl,
+			&i.AwayTeamFlagUrl,
+			&i.StartsAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPredictionsByMatch = `-- name: ListPredictionsByMatch :many
 SELECT id, uuid, group_id, user_id, match_id, home_score, away_score, points, calculated, calculated_at, created_at, updated_at, deleted_at FROM predictions
 WHERE match_id = $1

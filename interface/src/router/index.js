@@ -12,10 +12,14 @@ import PredictionsPage from '@/pages/app/PredictionsPage.vue'
 import RankingPage from '@/pages/app/RankingPage.vue'
 import ProfilePage from '@/pages/app/ProfilePage.vue'
 import RulesPage from '@/pages/app/RulesPage.vue'
+import LandingPage from '@/pages/landingpage/LandingPage.vue'
 
 const routes = [
-    { path: '/', redirect: '/app/home' },
-
+    {
+        path: '/',
+        component: LandingPage,
+        meta: { title: 'Bolão Copa 2026' },
+    },
     {
         path: '/login',
         component: AuthPage,

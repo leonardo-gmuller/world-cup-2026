@@ -17,6 +17,7 @@ type RankingItemOutput struct {
 func (u *PredictionUseCase) GetGroupRanking(
 	ctx context.Context,
 	groupID string,
+	stage *string,
 ) ([]RankingItemOutput, error) {
 	groupUUID, err := uuid.Parse(groupID)
 	if err != nil {
@@ -28,5 +29,5 @@ func (u *PredictionUseCase) GetGroupRanking(
 		return nil, err
 	}
 
-	return u.predictionRepo.GetGroupRanking(ctx, group.ID)
+	return u.predictionRepo.GetGroupRanking(ctx, group.ID, stage)
 }

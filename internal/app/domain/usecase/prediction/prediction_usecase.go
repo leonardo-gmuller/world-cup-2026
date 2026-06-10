@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/dto"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 )
 
@@ -29,6 +30,7 @@ type PredictionUseCaseInterface interface {
 	GetGroupRanking(
 		ctx context.Context,
 		groupID string,
+		stage *string,
 	) ([]RankingItemOutput, error)
 
 	GetPredictionByMatchAndUser(
@@ -39,6 +41,10 @@ type PredictionUseCaseInterface interface {
 	) (*entity.Prediction, error)
 
 	GetPredictionByID(ctx context.Context, id uuid.UUID) (*entity.Prediction, error)
+	ListPredictionRemindersByUserID(
+		ctx context.Context,
+		userID int64,
+	) ([]dto.PredictionReminderOutput, error)
 }
 
 func NewPredictionUseCase(

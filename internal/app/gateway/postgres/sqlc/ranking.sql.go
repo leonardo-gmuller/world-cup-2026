@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getGroupRanking = `-- name: GetGroupRanking :many
@@ -24,12 +25,20 @@ LEFT JOIN predictions p
     ON p.user_id = u.id 
     AND p.group_id = gm.group_id
     AND p.deleted_at IS NULL
+LEFT JOIN matches m
+    ON m.id = p.match_id
 WHERE gm.group_id = $1
 AND gm.deleted_at IS NULL
 AND u.deleted_at IS NULL
+AND ($2::text IS NULL OR m.stage = $2)
 GROUP BY u.id, u.uuid, u.name
 ORDER BY total_points DESC, u.name ASC
 `
+
+type GetGroupRankingParams struct {
+	GroupID int64
+	Stage   pgtype.Text
+}
 
 type GetGroupRankingRow struct {
 	UserID           int64
@@ -39,8 +48,8 @@ type GetGroupRankingRow struct {
 	PredictionsCount int64
 }
 
-func (q *Queries) GetGroupRanking(ctx context.Context, groupID int64) ([]GetGroupRankingRow, error) {
-	rows, err := q.db.Query(ctx, getGroupRanking, groupID)
+func (q *Queries) GetGroupRanking(ctx context.Context, arg GetGroupRankingParams) ([]GetGroupRankingRow, error) {
+	rows, err := q.db.Query(ctx, getGroupRanking, arg.GroupID, arg.Stage)
 	if err != nil {
 		return nil, err
 	}

@@ -23,6 +23,7 @@ func (h *Handler) predictionSetupRoutes(router chi.Router) {
 		r.Post("/", h.savePrediction())
 		r.Get("/group/{group_id}", h.listUserPredictionsByGroup())
 		r.Post("/match/{match_id}/calculate", h.calculateMatchPredictions())
+		r.Get("/reminders", h.listPredictionReminders())
 	})
 }
 
@@ -136,6 +137,37 @@ func (h *Handler) calculateMatchPredictions() http.HandlerFunc {
 		resp = response.OK(map[string]string{
 			"message": "predictions calculated successfully",
 		})
+		rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+	}
+}
+
+func (h *Handler) listPredictionReminders() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		resp := &response.Response{}
+
+		authUser, ok := middleware.GetAuthUser(r.Context())
+		if !ok {
+			resp = response.Unauthorized()
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		usecase := h.app.NewPredictionUseCase(h.app.DB.Pool)
+
+		reminders, err := usecase.ListPredictionRemindersByUserID(
+			r.Context(),
+			authUser.ID,
+		)
+		if err != nil {
+			resp = response.InternalServerError(err)
+			rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
+			return
+		}
+
+		resp = response.OK(
+			schema.PredictionReminderListResponseFromDto(reminders),
+		)
+
 		rest.SendJSON(w, resp.Status, resp.Payload, resp.Headers)
 	}
 }
