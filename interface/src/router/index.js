@@ -13,8 +13,16 @@ import RankingPage from '@/pages/app/RankingPage.vue'
 import ProfilePage from '@/pages/app/ProfilePage.vue'
 import RulesPage from '@/pages/app/RulesPage.vue'
 import LandingPage from '@/pages/landingpage/LandingPage.vue'
+import NotFoundPage from '@/pages/landingpage/NotFoundPage.vue'
 
 const routes = [
+    {
+        path: '/:pathMatch(.*)*',
+        component: NotFoundPage,
+        meta: {
+            title: 'Página não encontrada • Bolão Copa 2026'
+        }
+    },
     {
         path: '/',
         component: LandingPage,
