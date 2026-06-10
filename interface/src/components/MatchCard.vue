@@ -177,6 +177,7 @@ function submit() {
         home_score: form.home_score,
         away_score: form.away_score,
     })
+    editingPrediction.value = false
 }
 
 watch(

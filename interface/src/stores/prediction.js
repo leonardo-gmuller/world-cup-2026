@@ -40,7 +40,18 @@ export const usePredictionStore = defineStore('prediction', {
             this.loading = true
 
             try {
-                await savePrediction(payload)
+                const savedPrediction = await savePrediction(payload)
+                const index = this.predictions.findIndex((item) => {
+                    return item.match_id === savedPrediction.match_id
+                })
+
+                if (index >= 0) {
+                    this.predictions[index] = savedPrediction
+                } else {
+                    this.predictions.push(savedPrediction)
+                }
+
+                return savedPrediction
             } finally {
                 this.loading = false
             }
