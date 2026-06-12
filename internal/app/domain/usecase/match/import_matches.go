@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/constants"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 )
 
@@ -14,6 +15,18 @@ func (u *MatchUseCase) ImportMatches(ctx context.Context) error {
 	}
 
 	for _, externalMatch := range externalMatches {
+		existingMatch, err := u.repo.GetMatchByExternalID(ctx, externalMatch.ExternalID)
+		if err != nil {
+			return err
+		}
+
+		if existingMatch != nil {
+			switch existingMatch.Status {
+			case constants.MatchStatusLive, constants.MatchStatusFinished:
+				continue
+			}
+		}
+
 		var homeTeamID *int64
 		var awayTeamID *int64
 
@@ -64,7 +77,7 @@ func (u *MatchUseCase) ImportMatches(ctx context.Context) error {
 			Status:       externalMatch.Status,
 		}
 
-		_, err := u.repo.UpsertMatch(ctx, match)
+		_, err = u.repo.UpsertMatch(ctx, match)
 		if err != nil {
 			return err
 		}

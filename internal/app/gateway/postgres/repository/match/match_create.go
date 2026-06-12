@@ -53,3 +53,25 @@ func (r *MatchRepository) UpsertMatch(
 
 	return mapMatch(row), nil
 }
+
+func (r *MatchRepository) UpdateLiveResult(
+	ctx context.Context,
+	matchID int64,
+	apiFootballID int64,
+	homeScore *int,
+	awayScore *int,
+	status string,
+) (*entity.Match, error) {
+	match, err := r.Queries.UpdateLiveResult(ctx, sqlc.UpdateLiveResultParams{
+		ID:            matchID,
+		ApiFootballID: pgtype.Int8{Int64: apiFootballID, Valid: true},
+		HomeScore:     pgtype.Int4{Int32: int32(*homeScore), Valid: homeScore != nil},
+		AwayScore:     pgtype.Int4{Int32: int32(*awayScore), Valid: awayScore != nil},
+		Status:        status,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapMatch(match), nil
+}

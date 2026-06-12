@@ -1,4 +1,4 @@
-package football_api
+package football_data
 
 type MatchesResponse struct {
 	Filters     FiltersDTO     `json:"filters"`

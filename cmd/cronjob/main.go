@@ -7,8 +7,9 @@ import (
 
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/config"
+	api_football "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/api_football"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/cronjob"
-	football_api "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/football_api"
+	football_data "github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/football_data"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/pkg/logger"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/service/hash"
@@ -34,7 +35,8 @@ func main() {
 
 	hashService := hash.New()
 	jwtService := jwt.New(cfg.JWT.Secret)
-	footballClient := football_api.New(cfg)
+	footballClient := football_data.New(cfg)
+	liveScoreClient := api_football.New(cfg)
 
 	appl := app.New(
 		ctx,
@@ -43,6 +45,7 @@ func main() {
 		hashService,
 		jwtService,
 		footballClient,
+		liveScoreClient,
 	)
 
 	usecase := appl.NewJobControlUseCase(postgresClient.Pool)
