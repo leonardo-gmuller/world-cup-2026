@@ -40,13 +40,13 @@ func normalizeStage(stage string) string {
 
 func normalizeStatus(status string) string {
 	switch status {
-	case "NS":
+	case "TIMED", "SCHEDULED", "POSTPONED":
 		return "scheduled"
 
-	case "1H", "2H", "HT", "LIVE":
+	case "IN_PLAY", "2H", "HT", "LIVE":
 		return "live"
 
-	case "FT":
+	case "FINISHED":
 		return "finished"
 
 	default:
