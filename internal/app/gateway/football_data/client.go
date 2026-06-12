@@ -15,8 +15,8 @@ type Client struct {
 
 func New(cfg config.Config) *Client {
 	return &Client{
-		baseURL: cfg.APIFootball.BaseURL,
-		apiKey:  cfg.APIFootball.APIKey,
+		baseURL: cfg.FootballData.BaseURL,
+		apiKey:  cfg.FootballData.APIKey,
 		client: &http.Client{
 			Timeout: 15 * time.Second,
 		},
