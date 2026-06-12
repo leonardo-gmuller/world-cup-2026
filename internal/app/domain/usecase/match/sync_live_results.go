@@ -2,7 +2,6 @@ package match_usecase
 
 import (
 	"context"
-	"database/sql"
 	"strconv"
 	"time"
 )
@@ -34,11 +33,11 @@ func (u *MatchUseCase) SyncLiveResults(ctx context.Context) error {
 			externalMatch.AwayTeam.Name,
 		)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				continue
-			}
-
 			return err
+		}
+
+		if internalMatch == nil {
+			continue
 		}
 
 		apiFootballID, err := strconv.ParseInt(externalMatch.ExternalID, 10, 64)

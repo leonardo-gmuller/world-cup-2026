@@ -2,11 +2,11 @@ package match_repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/sqlc"
@@ -130,6 +130,9 @@ func (r *MatchRepository) FindMatchForLiveSync(
 		AwayTeamName: awayTeamName,
 	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -145,7 +148,7 @@ func (r *MatchRepository) GetMatchByExternalID(
 		Valid:  true,
 	})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 

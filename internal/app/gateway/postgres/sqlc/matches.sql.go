@@ -28,20 +28,23 @@ func (q *Queries) CountMatches(ctx context.Context) (int64, error) {
 const findMatchForLiveSync = `-- name: FindMatchForLiveSync :one
 SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
 FROM matches
-WHERE DATE(starts_at) = DATE($1::timestamptz)
-  AND LOWER(COALESCE(home_team_name, '')) = LOWER($2::text)
-  AND LOWER(COALESCE(away_team_name, '')) = LOWER($3::text)
+WHERE LOWER(home_team_name) = LOWER($1::text)
+  AND LOWER(away_team_name) = LOWER($2::text)
+  AND starts_at BETWEEN
+      $3::timestamptz - INTERVAL '3 hours'
+      AND
+      $3::timestamptz + INTERVAL '3 hours'
 LIMIT 1
 `
 
 type FindMatchForLiveSyncParams struct {
-	StartsAt     pgtype.Timestamptz
 	HomeTeamName string
 	AwayTeamName string
+	StartsAt     pgtype.Timestamptz
 }
 
 func (q *Queries) FindMatchForLiveSync(ctx context.Context, arg FindMatchForLiveSyncParams) (Match, error) {
-	row := q.db.QueryRow(ctx, findMatchForLiveSync, arg.StartsAt, arg.HomeTeamName, arg.AwayTeamName)
+	row := q.db.QueryRow(ctx, findMatchForLiveSync, arg.HomeTeamName, arg.AwayTeamName, arg.StartsAt)
 	var i Match
 	err := row.Scan(
 		&i.ID,

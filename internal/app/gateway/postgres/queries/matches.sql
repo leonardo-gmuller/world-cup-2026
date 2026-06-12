@@ -104,9 +104,12 @@ SELECT EXISTS (
 -- name: FindMatchForLiveSync :one
 SELECT *
 FROM matches
-WHERE DATE(starts_at) = DATE(sqlc.arg(starts_at)::timestamptz)
-  AND LOWER(COALESCE(home_team_name, '')) = LOWER(sqlc.arg(home_team_name)::text)
-  AND LOWER(COALESCE(away_team_name, '')) = LOWER(sqlc.arg(away_team_name)::text)
+WHERE LOWER(home_team_name) = LOWER(sqlc.arg(home_team_name)::text)
+  AND LOWER(away_team_name) = LOWER(sqlc.arg(away_team_name)::text)
+  AND starts_at BETWEEN
+      sqlc.arg(starts_at)::timestamptz - INTERVAL '3 hours'
+      AND
+      sqlc.arg(starts_at)::timestamptz + INTERVAL '3 hours'
 LIMIT 1;
 
 -- name: UpdateLiveResult :one
