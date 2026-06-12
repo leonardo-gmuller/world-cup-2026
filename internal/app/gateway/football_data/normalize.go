@@ -1,4 +1,4 @@
-package football_api
+package football_data
 
 import (
 	"strings"

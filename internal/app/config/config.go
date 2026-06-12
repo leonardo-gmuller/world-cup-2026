@@ -30,9 +30,10 @@ type Config struct {
 	CircuitBreaker CircuitBreaker
 
 	// Infra
-	Postgres    Postgres
-	Worker      WorkerConfig
-	FootballAPI FootballAPIConfig
+	Postgres     Postgres
+	Worker       WorkerConfig
+	FootballData FootballDataConfig
+	APIFootball  APIFootballConfig
 }
 
 type App struct {
@@ -71,9 +72,16 @@ type WorkerConfig struct {
 	PollInterval time.Duration `envconfig:"WORKER_POLL_INTERVAL" default:"5s"`
 }
 
-type FootballAPIConfig struct {
-	BaseURL string `envconfig:"FOOTBALL_API_BASE_URL" default:"https://api.football-data.org/v4"`
-	APIKey  string `envconfig:"FOOTBALL_API_KEY"`
+type FootballDataConfig struct {
+	BaseURL string `envconfig:"FOOTBALL_DATA_BASE_URL" default:"https://api.football-data.org/v4"`
+	APIKey  string `envconfig:"FOOTBALL_DATA_API_KEY"`
+}
+
+type APIFootballConfig struct {
+	BaseURL string `envconfig:"API_FOOTBALL_BASE_URL" default:"https://v3.football.api-sports.io"`
+	APIKey  string `envconfig:"API_FOOTBALL_KEY"`
+	League  int    `envconfig:"API_FOOTBALL_LEAGUE" default:"1"`
+	Season  int    `envconfig:"API_FOOTBALL_SEASON" default:"2026"`
 }
 
 type JWT struct {

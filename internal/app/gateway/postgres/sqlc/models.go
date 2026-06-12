@@ -43,24 +43,27 @@ type JobsControl struct {
 }
 
 type Match struct {
-	ID           int64
-	Uuid         uuid.UUID
-	ExternalID   pgtype.Text
-	Stage        string
-	GroupName    pgtype.Text
-	HomeTeamID   pgtype.Int8
-	AwayTeamID   pgtype.Int8
-	HomeTeamName pgtype.Text
-	AwayTeamName pgtype.Text
-	StartsAt     pgtype.Timestamptz
-	HomeScore    pgtype.Int4
-	AwayScore    pgtype.Int4
-	Status       string
-	WinnerTeamID pgtype.Int8
-	ImportedAt   pgtype.Timestamptz
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	DeletedAt    pgtype.Timestamptz
+	ID             int64
+	Uuid           uuid.UUID
+	ExternalID     pgtype.Text
+	Stage          string
+	GroupName      pgtype.Text
+	HomeTeamID     pgtype.Int8
+	AwayTeamID     pgtype.Int8
+	HomeTeamName   pgtype.Text
+	AwayTeamName   pgtype.Text
+	StartsAt       pgtype.Timestamptz
+	HomeScore      pgtype.Int4
+	AwayScore      pgtype.Int4
+	Status         string
+	WinnerTeamID   pgtype.Int8
+	ImportedAt     pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+	DeletedAt      pgtype.Timestamptz
+	ApiFootballID  pgtype.Int8
+	ResultSource   string
+	LastLiveSyncAt pgtype.Timestamptz
 }
 
 type PasswordResetToken struct {

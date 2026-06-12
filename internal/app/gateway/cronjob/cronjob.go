@@ -35,6 +35,13 @@ func New(cfg config.Config, useCase useCase) *cli.App {
 					return handler.StartScheduler(ctx.Context)
 				},
 			},
+			{
+				Name:  "sync-live-results",
+				Usage: "Sync live match results from external source",
+				Action: func(ctx *cli.Context) error {
+					return handler.RunJob(ctx.Context, types.SyncLiveResults, handler.SyncLiveResults)
+				},
+			},
 		},
 	}
 }

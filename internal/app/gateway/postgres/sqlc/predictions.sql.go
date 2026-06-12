@@ -90,7 +90,7 @@ func (q *Queries) GetPredictionByID(ctx context.Context, argUuid uuid.UUID) (Pre
 }
 
 const listFinishedOrLiveMatchesToCalculate = `-- name: ListFinishedOrLiveMatchesToCalculate :many
-SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at
+SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
 FROM matches m
 WHERE m.status IN ('finished', 'live')
 AND m.deleted_at IS NULL
@@ -132,6 +132,9 @@ func (q *Queries) ListFinishedOrLiveMatchesToCalculate(ctx context.Context) ([]M
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.ApiFootballID,
+			&i.ResultSource,
+			&i.LastLiveSyncAt,
 		); err != nil {
 			return nil, err
 		}

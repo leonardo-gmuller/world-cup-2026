@@ -40,8 +40,40 @@ type matchRepository interface {
 	ListFinishedOrLiveMatches(ctx context.Context) ([]entity.Match, error)
 
 	HasLiveMatches(ctx context.Context) (bool, error)
+
+	FindMatchForLiveSync(
+		ctx context.Context,
+		startsAt time.Time,
+		homeTeamName string,
+		awayTeamName string,
+	) (*entity.Match, error)
+
+	UpdateLiveResult(
+		ctx context.Context,
+		matchID int64,
+		apiFootballID int64,
+		homeScore *int,
+		awayScore *int,
+		status string,
+	) (*entity.Match, error)
+
+	GetMatchByExternalID(
+		ctx context.Context,
+		externalID string,
+	) (*entity.Match, error)
+
+	HasMatchesToSyncLiveResults(
+		ctx context.Context,
+	) (bool, error)
 }
 
 type footballAPIClient interface {
 	FetchWorldCupMatches(ctx context.Context) ([]ExternalMatchOutput, error)
+}
+
+type liveScoreClient interface {
+	FetchTodayMatches(
+		ctx context.Context,
+		date time.Time,
+	) ([]ExternalMatchOutput, error)
 }

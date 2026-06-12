@@ -25,8 +25,91 @@ func (q *Queries) CountMatches(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const findMatchForLiveSync = `-- name: FindMatchForLiveSync :one
+SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
+FROM matches
+WHERE LOWER(home_team_name) = LOWER($1::text)
+  AND LOWER(away_team_name) = LOWER($2::text)
+  AND starts_at BETWEEN
+      $3::timestamptz - INTERVAL '3 hours'
+      AND
+      $3::timestamptz + INTERVAL '3 hours'
+LIMIT 1
+`
+
+type FindMatchForLiveSyncParams struct {
+	HomeTeamName string
+	AwayTeamName string
+	StartsAt     pgtype.Timestamptz
+}
+
+func (q *Queries) FindMatchForLiveSync(ctx context.Context, arg FindMatchForLiveSyncParams) (Match, error) {
+	row := q.db.QueryRow(ctx, findMatchForLiveSync, arg.HomeTeamName, arg.AwayTeamName, arg.StartsAt)
+	var i Match
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.ExternalID,
+		&i.Stage,
+		&i.GroupName,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
+		&i.HomeTeamName,
+		&i.AwayTeamName,
+		&i.StartsAt,
+		&i.HomeScore,
+		&i.AwayScore,
+		&i.Status,
+		&i.WinnerTeamID,
+		&i.ImportedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
+	)
+	return i, err
+}
+
+const getMatchByExternalID = `-- name: GetMatchByExternalID :one
+SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
+FROM matches
+WHERE external_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetMatchByExternalID(ctx context.Context, externalID pgtype.Text) (Match, error) {
+	row := q.db.QueryRow(ctx, getMatchByExternalID, externalID)
+	var i Match
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.ExternalID,
+		&i.Stage,
+		&i.GroupName,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
+		&i.HomeTeamName,
+		&i.AwayTeamName,
+		&i.StartsAt,
+		&i.HomeScore,
+		&i.AwayScore,
+		&i.Status,
+		&i.WinnerTeamID,
+		&i.ImportedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
+	)
+	return i, err
+}
+
 const getMatchByID = `-- name: GetMatchByID :one
-SELECT m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, 
+SELECT m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, m.api_football_id, m.result_source, m.last_live_sync_at, 
 ht.flag_url AS home_team_flag_url, 
 at.flag_url AS away_team_flag_url 
 FROM 
@@ -56,6 +139,9 @@ type GetMatchByIDRow struct {
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz
 	DeletedAt       pgtype.Timestamptz
+	ApiFootballID   pgtype.Int8
+	ResultSource    string
+	LastLiveSyncAt  pgtype.Timestamptz
 	HomeTeamFlagUrl pgtype.Text
 	AwayTeamFlagUrl pgtype.Text
 }
@@ -82,6 +168,9 @@ func (q *Queries) GetMatchByID(ctx context.Context, id int64) (GetMatchByIDRow, 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
 		&i.HomeTeamFlagUrl,
 		&i.AwayTeamFlagUrl,
 	)
@@ -89,7 +178,7 @@ func (q *Queries) GetMatchByID(ctx context.Context, id int64) (GetMatchByIDRow, 
 }
 
 const getMatchByUUID = `-- name: GetMatchByUUID :one
-SELECT m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, 
+SELECT m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, m.api_football_id, m.result_source, m.last_live_sync_at, 
 ht.flag_url AS home_team_flag_url, 
 at.flag_url AS away_team_flag_url 
 FROM 
@@ -119,6 +208,9 @@ type GetMatchByUUIDRow struct {
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz
 	DeletedAt       pgtype.Timestamptz
+	ApiFootballID   pgtype.Int8
+	ResultSource    string
+	LastLiveSyncAt  pgtype.Timestamptz
 	HomeTeamFlagUrl pgtype.Text
 	AwayTeamFlagUrl pgtype.Text
 }
@@ -145,6 +237,9 @@ func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (GetMat
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
 		&i.HomeTeamFlagUrl,
 		&i.AwayTeamFlagUrl,
 	)
@@ -153,7 +248,7 @@ func (q *Queries) GetMatchByUUID(ctx context.Context, argUuid uuid.UUID) (GetMat
 
 const getNextMatch = `-- name: GetNextMatch :one
 SELECT
-    m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at,
+    m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, m.api_football_id, m.result_source, m.last_live_sync_at,
     ht.flag_url AS home_team_flag_url,
     at.flag_url AS away_team_flag_url
 FROM matches m
@@ -186,6 +281,9 @@ type GetNextMatchRow struct {
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz
 	DeletedAt       pgtype.Timestamptz
+	ApiFootballID   pgtype.Int8
+	ResultSource    string
+	LastLiveSyncAt  pgtype.Timestamptz
 	HomeTeamFlagUrl pgtype.Text
 	AwayTeamFlagUrl pgtype.Text
 }
@@ -212,6 +310,9 @@ func (q *Queries) GetNextMatch(ctx context.Context) (GetNextMatchRow, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
 		&i.HomeTeamFlagUrl,
 		&i.AwayTeamFlagUrl,
 	)
@@ -234,9 +335,26 @@ func (q *Queries) HasLiveMatches(ctx context.Context) (bool, error) {
 	return exists, err
 }
 
+const hasMatchesToSyncLiveResults = `-- name: HasMatchesToSyncLiveResults :one
+SELECT EXISTS (
+    SELECT 1
+    FROM matches
+    WHERE status IN ('scheduled', 'live')
+      AND starts_at BETWEEN NOW() - INTERVAL '3 hours'
+                        AND NOW() + INTERVAL '1 hour'
+)
+`
+
+func (q *Queries) HasMatchesToSyncLiveResults(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, hasMatchesToSyncLiveResults)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const listMatches = `-- name: ListMatches :many
 SELECT
-    m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at,
+    m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, m.api_football_id, m.result_source, m.last_live_sync_at,
     ht.flag_url AS home_team_flag_url,
     at.flag_url AS away_team_flag_url
 FROM matches m
@@ -265,6 +383,9 @@ type ListMatchesRow struct {
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz
 	DeletedAt       pgtype.Timestamptz
+	ApiFootballID   pgtype.Int8
+	ResultSource    string
+	LastLiveSyncAt  pgtype.Timestamptz
 	HomeTeamFlagUrl pgtype.Text
 	AwayTeamFlagUrl pgtype.Text
 }
@@ -297,6 +418,9 @@ func (q *Queries) ListMatches(ctx context.Context) ([]ListMatchesRow, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.ApiFootballID,
+			&i.ResultSource,
+			&i.LastLiveSyncAt,
 			&i.HomeTeamFlagUrl,
 			&i.AwayTeamFlagUrl,
 		); err != nil {
@@ -311,7 +435,7 @@ func (q *Queries) ListMatches(ctx context.Context) ([]ListMatchesRow, error) {
 }
 
 const listMatchesByStage = `-- name: ListMatchesByStage :many
-SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at FROM matches
+SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at FROM matches
 WHERE stage = $1
 AND deleted_at IS NULL
 ORDER BY starts_at ASC
@@ -345,6 +469,9 @@ func (q *Queries) ListMatchesByStage(ctx context.Context, stage string) ([]Match
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.ApiFootballID,
+			&i.ResultSource,
+			&i.LastLiveSyncAt,
 		); err != nil {
 			return nil, err
 		}
@@ -354,6 +481,63 @@ func (q *Queries) ListMatchesByStage(ctx context.Context, stage string) ([]Match
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateLiveResult = `-- name: UpdateLiveResult :one
+UPDATE matches
+SET
+    api_football_id = $1,
+    home_score = $2,
+    away_score = $3,
+    status = $4,
+    result_source = 'api_football',
+    last_live_sync_at = NOW(),
+    updated_at = NOW()
+WHERE id = $5
+RETURNING id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
+`
+
+type UpdateLiveResultParams struct {
+	ApiFootballID pgtype.Int8
+	HomeScore     pgtype.Int4
+	AwayScore     pgtype.Int4
+	Status        string
+	ID            int64
+}
+
+func (q *Queries) UpdateLiveResult(ctx context.Context, arg UpdateLiveResultParams) (Match, error) {
+	row := q.db.QueryRow(ctx, updateLiveResult,
+		arg.ApiFootballID,
+		arg.HomeScore,
+		arg.AwayScore,
+		arg.Status,
+		arg.ID,
+	)
+	var i Match
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.ExternalID,
+		&i.Stage,
+		&i.GroupName,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
+		&i.HomeTeamName,
+		&i.AwayTeamName,
+		&i.StartsAt,
+		&i.HomeScore,
+		&i.AwayScore,
+		&i.Status,
+		&i.WinnerTeamID,
+		&i.ImportedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
+	)
+	return i, err
 }
 
 const upsertMatch = `-- name: UpsertMatch :one
@@ -390,7 +574,7 @@ DO UPDATE SET
     winner_team_id = EXCLUDED.winner_team_id,
     imported_at = NOW(),
     updated_at = NOW()
-RETURNING id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at
+RETURNING id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
 `
 
 type UpsertMatchParams struct {
@@ -445,6 +629,9 @@ func (q *Queries) UpsertMatch(ctx context.Context, arg UpsertMatchParams) (Match
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.ApiFootballID,
+		&i.ResultSource,
+		&i.LastLiveSyncAt,
 	)
 	return i, err
 }

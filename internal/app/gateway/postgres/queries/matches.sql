@@ -100,3 +100,42 @@ SELECT EXISTS (
     WHERE deleted_at IS NULL
     AND status = 'live'
 );
+
+-- name: FindMatchForLiveSync :one
+SELECT *
+FROM matches
+WHERE LOWER(home_team_name) = LOWER(sqlc.arg(home_team_name)::text)
+  AND LOWER(away_team_name) = LOWER(sqlc.arg(away_team_name)::text)
+  AND starts_at BETWEEN
+      sqlc.arg(starts_at)::timestamptz - INTERVAL '3 hours'
+      AND
+      sqlc.arg(starts_at)::timestamptz + INTERVAL '3 hours'
+LIMIT 1;
+
+-- name: UpdateLiveResult :one
+UPDATE matches
+SET
+    api_football_id = sqlc.arg(api_football_id),
+    home_score = sqlc.arg(home_score),
+    away_score = sqlc.arg(away_score),
+    status = sqlc.arg(status),
+    result_source = 'api_football',
+    last_live_sync_at = NOW(),
+    updated_at = NOW()
+WHERE id = sqlc.arg(id)
+RETURNING *;
+
+-- name: GetMatchByExternalID :one
+SELECT *
+FROM matches
+WHERE external_id = $1
+LIMIT 1;
+
+-- name: HasMatchesToSyncLiveResults :one
+SELECT EXISTS (
+    SELECT 1
+    FROM matches
+    WHERE status IN ('scheduled', 'live')
+      AND starts_at BETWEEN NOW() - INTERVAL '3 hours'
+                        AND NOW() + INTERVAL '1 hour'
+);

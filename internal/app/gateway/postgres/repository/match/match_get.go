@@ -2,9 +2,14 @@ package match_repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/domain/entity"
+	"github.com/leonardo-gmuller/world-cup-2026/internal/app/gateway/postgres/sqlc"
 )
 
 func (r *MatchRepository) GetMatchByID(
@@ -111,4 +116,52 @@ func (r *MatchRepository) HasLiveMatches(ctx context.Context) (bool, error) {
 	}
 
 	return row, nil
+}
+
+func (r *MatchRepository) FindMatchForLiveSync(
+	ctx context.Context,
+	startsAt time.Time,
+	homeTeamName string,
+	awayTeamName string,
+) (*entity.Match, error) {
+	match, err := r.Queries.FindMatchForLiveSync(ctx, sqlc.FindMatchForLiveSyncParams{
+		StartsAt:     pgtype.Timestamptz{Time: startsAt, Valid: true},
+		HomeTeamName: homeTeamName,
+		AwayTeamName: awayTeamName,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return mapMatch(match), nil
+}
+
+func (r *MatchRepository) GetMatchByExternalID(
+	ctx context.Context,
+	externalID string,
+) (*entity.Match, error) {
+	match, err := r.Queries.GetMatchByExternalID(ctx, pgtype.Text{
+		String: externalID,
+		Valid:  true,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	entityMatch := mapMatch(match)
+
+	return entityMatch, nil
+}
+
+func (r *MatchRepository) HasMatchesToSyncLiveResults(
+	ctx context.Context,
+) (bool, error) {
+	return r.Queries.HasMatchesToSyncLiveResults(ctx)
 }

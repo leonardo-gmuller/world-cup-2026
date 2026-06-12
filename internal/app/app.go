@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/leonardo-gmuller/world-cup-2026/internal/app/config"
@@ -30,7 +31,9 @@ type App struct {
 	HashService hashService
 	JWTService  jwtService
 
-	FootballAPI footballAPIClient
+	FootballAPI footballDataClient
+
+	LiveScoreClient liveScoreClient
 }
 
 type hashService interface {
@@ -43,8 +46,12 @@ type jwtService interface {
 	Auth() *jwtauth.JWTAuth
 }
 
-type footballAPIClient interface {
+type footballDataClient interface {
 	FetchWorldCupMatches(ctx context.Context) ([]match_usecase.ExternalMatchOutput, error)
+}
+
+type liveScoreClient interface {
+	FetchTodayMatches(ctx context.Context, date time.Time) ([]match_usecase.ExternalMatchOutput, error)
 }
 
 func New(
@@ -53,14 +60,16 @@ func New(
 	db *postgres.Client,
 	hashService hashService,
 	jwtService jwtService,
-	footballAPI footballAPIClient,
+	footballAPI footballDataClient,
+	liveScoreClient liveScoreClient,
 ) *App {
 	return &App{
-		Config:      cfg,
-		DB:          db,
-		HashService: hashService,
-		JWTService:  jwtService,
-		FootballAPI: footballAPI,
+		Config:          cfg,
+		DB:              db,
+		HashService:     hashService,
+		JWTService:      jwtService,
+		FootballAPI:     footballAPI,
+		LiveScoreClient: liveScoreClient,
 	}
 }
 func (a *App) NewAuthUseCase(dbtx postgres.DBTX) auth_usecase.AuthUseCaseInterface {
@@ -88,6 +97,7 @@ func (a *App) NewMatchUseCase(dbtx postgres.DBTX) match_usecase.MatchUseCaseInte
 	return match_usecase.NewMatchUseCase(
 		match_repository.NewMatchRepository(dbtx),
 		a.FootballAPI,
+		a.LiveScoreClient,
 	)
 }
 

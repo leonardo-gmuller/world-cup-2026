@@ -13,6 +13,7 @@ type JobControlUsecaseInterface interface {
 	UpdateJobsControl(ctx context.Context, jobID types.Job) error
 	ImportMatches(ctx context.Context) error
 	CalculateMatchPredictions(ctx context.Context) error
+	SyncLiveResults(ctx context.Context) error
 }
 
 type JobControlUsecase struct {
