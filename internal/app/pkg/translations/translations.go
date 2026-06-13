@@ -9,6 +9,7 @@ var TeamNames = map[string]string{
 	"Argentina":            "Argentina",
 	"England":              "Inglaterra",
 	"United States":        "Estados Unidos",
+	"USA":                  "Estados Unidos",
 	"Mexico":               "México",
 	"Netherlands":          "Holanda",
 	"Belgium":              "Bélgica",
