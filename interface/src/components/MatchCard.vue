@@ -94,8 +94,7 @@
         <div v-else class="mt-5 grid grid-cols-1 gap-3">
             <div class="rounded-2xl bg-slate-50 p-3 text-center">
                 <p class="text-xs text-slate-500">Seu palpite</p>
-                <p :key="predictionScore" class="mt-1 text-lg font-bold text-slate-900"
-                    :class="predictionPoints > 0 ? 'score-text' : ''">
+                <p :key="predictionScore" class="mt-1 text-lg font-bold text-slate-900 score-text">
                     {{ predictionScore }}
                 </p>
                 <Transition name="score-pop" mode="out-in">
