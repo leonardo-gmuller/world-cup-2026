@@ -131,11 +131,10 @@ FROM matches
 WHERE external_id = $1
 LIMIT 1;
 
--- name: HasMatchesToSyncLiveResults :one
-SELECT EXISTS (
-    SELECT 1
-    FROM matches
-    WHERE status IN ('scheduled', 'live')
-      AND starts_at BETWEEN NOW() - INTERVAL '3 hours'
-                        AND NOW() + INTERVAL '1 hour'
-);
+-- name: ListMatchesToSyncLiveResults :many
+SELECT *
+FROM matches
+WHERE status IN ('scheduled', 'live')
+  AND starts_at BETWEEN NOW() - INTERVAL '4 hours'
+                    AND NOW() + INTERVAL '1 hour'
+ORDER BY starts_at;

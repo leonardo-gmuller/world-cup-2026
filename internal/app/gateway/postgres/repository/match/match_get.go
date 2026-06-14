@@ -160,8 +160,18 @@ func (r *MatchRepository) GetMatchByExternalID(
 	return entityMatch, nil
 }
 
-func (r *MatchRepository) HasMatchesToSyncLiveResults(
+func (r *MatchRepository) ListMatchesToSyncLiveResults(
 	ctx context.Context,
-) (bool, error) {
-	return r.Queries.HasMatchesToSyncLiveResults(ctx)
+) ([]entity.Match, error) {
+	rows, err := r.Queries.ListMatchesToSyncLiveResults(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]entity.Match, 0, len(rows))
+	for _, row := range rows {
+		items = append(items, *mapMatch(row))
+	}
+
+	return items, nil
 }

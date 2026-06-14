@@ -335,23 +335,6 @@ func (q *Queries) HasLiveMatches(ctx context.Context) (bool, error) {
 	return exists, err
 }
 
-const hasMatchesToSyncLiveResults = `-- name: HasMatchesToSyncLiveResults :one
-SELECT EXISTS (
-    SELECT 1
-    FROM matches
-    WHERE status IN ('scheduled', 'live')
-      AND starts_at BETWEEN NOW() - INTERVAL '3 hours'
-                        AND NOW() + INTERVAL '1 hour'
-)
-`
-
-func (q *Queries) HasMatchesToSyncLiveResults(ctx context.Context) (bool, error) {
-	row := q.db.QueryRow(ctx, hasMatchesToSyncLiveResults)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
 const listMatches = `-- name: ListMatches :many
 SELECT
     m.id, m.uuid, m.external_id, m.stage, m.group_name, m.home_team_id, m.away_team_id, m.home_team_name, m.away_team_name, m.starts_at, m.home_score, m.away_score, m.status, m.winner_team_id, m.imported_at, m.created_at, m.updated_at, m.deleted_at, m.api_football_id, m.result_source, m.last_live_sync_at,
@@ -443,6 +426,57 @@ ORDER BY starts_at ASC
 
 func (q *Queries) ListMatchesByStage(ctx context.Context, stage string) ([]Match, error) {
 	rows, err := q.db.Query(ctx, listMatchesByStage, stage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Match
+	for rows.Next() {
+		var i Match
+		if err := rows.Scan(
+			&i.ID,
+			&i.Uuid,
+			&i.ExternalID,
+			&i.Stage,
+			&i.GroupName,
+			&i.HomeTeamID,
+			&i.AwayTeamID,
+			&i.HomeTeamName,
+			&i.AwayTeamName,
+			&i.StartsAt,
+			&i.HomeScore,
+			&i.AwayScore,
+			&i.Status,
+			&i.WinnerTeamID,
+			&i.ImportedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.ApiFootballID,
+			&i.ResultSource,
+			&i.LastLiveSyncAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMatchesToSyncLiveResults = `-- name: ListMatchesToSyncLiveResults :many
+SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
+FROM matches
+WHERE status IN ('scheduled', 'live')
+  AND starts_at BETWEEN NOW() - INTERVAL '4 hours'
+                    AND NOW() + INTERVAL '1 hour'
+ORDER BY starts_at
+`
+
+func (q *Queries) ListMatchesToSyncLiveResults(ctx context.Context) ([]Match, error) {
+	rows, err := q.db.Query(ctx, listMatchesToSyncLiveResults)
 	if err != nil {
 		return nil, err
 	}

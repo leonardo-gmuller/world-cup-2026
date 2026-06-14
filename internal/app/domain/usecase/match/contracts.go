@@ -62,9 +62,9 @@ type matchRepository interface {
 		externalID string,
 	) (*entity.Match, error)
 
-	HasMatchesToSyncLiveResults(
+	ListMatchesToSyncLiveResults(
 		ctx context.Context,
-	) (bool, error)
+	) ([]entity.Match, error)
 }
 
 type footballAPIClient interface {

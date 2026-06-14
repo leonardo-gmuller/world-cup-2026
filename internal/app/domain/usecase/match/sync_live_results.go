@@ -7,64 +7,77 @@ import (
 )
 
 func (u *MatchUseCase) SyncLiveResults(ctx context.Context) error {
-	hasMatchesToSync, err := u.repo.HasMatchesToSyncLiveResults(ctx)
+	matchesToSync, err := u.repo.ListMatchesToSyncLiveResults(ctx)
 	if err != nil {
 		return err
 	}
 
-	if !hasMatchesToSync {
+	if len(matchesToSync) == 0 {
 		return nil
 	}
 
-	externalMatches, err := u.liveClient.FetchTodayMatches(ctx, time.Now())
-	if err != nil {
-		return err
+	dates := make(map[string]time.Time)
+
+	for _, match := range matchesToSync {
+		date := match.StartsAt.UTC()
+		dateKey := date.Format("2006-01-02")
+
+		if _, exists := dates[dateKey]; !exists {
+			dates[dateKey] = date
+		}
 	}
 
-	for _, externalMatch := range externalMatches {
-		if externalMatch.HomeTeam == nil || externalMatch.AwayTeam == nil {
-			continue
-		}
-
-		internalMatch, err := u.repo.FindMatchForLiveSync(
-			ctx,
-			externalMatch.StartsAt,
-			externalMatch.HomeTeam.Name,
-			externalMatch.AwayTeam.Name,
-		)
+	for _, date := range dates {
+		externalMatches, err := u.liveClient.FetchTodayMatches(ctx, date)
 		if err != nil {
 			return err
 		}
 
-		if internalMatch == nil {
-			continue
-		}
+		for _, externalMatch := range externalMatches {
+			if externalMatch.HomeTeam == nil || externalMatch.AwayTeam == nil {
+				continue
+			}
 
-		apiFootballID, err := strconv.ParseInt(externalMatch.ExternalID, 10, 64)
-		if err != nil {
-			return err
-		}
+			internalMatch, err := u.repo.FindMatchForLiveSync(
+				ctx,
+				externalMatch.StartsAt,
+				externalMatch.HomeTeam.Name,
+				externalMatch.AwayTeam.Name,
+			)
+			if err != nil {
+				return err
+			}
 
-		scoreChanged :=
-			!sameIntPointer(internalMatch.HomeScore, externalMatch.HomeScore) ||
-				!sameIntPointer(internalMatch.AwayScore, externalMatch.AwayScore)
+			if internalMatch == nil {
+				continue
+			}
 
-		statusChanged := internalMatch.Status != externalMatch.Status
+			apiFootballID, err := strconv.ParseInt(externalMatch.ExternalID, 10, 64)
+			if err != nil {
+				return err
+			}
 
-		if !scoreChanged && !statusChanged {
-			continue
-		}
+			scoreChanged :=
+				!sameIntPointer(internalMatch.HomeScore, externalMatch.HomeScore) ||
+					!sameIntPointer(internalMatch.AwayScore, externalMatch.AwayScore)
 
-		_, err = u.repo.UpdateLiveResult(
-			ctx,
-			internalMatch.ID,
-			apiFootballID,
-			externalMatch.HomeScore,
-			externalMatch.AwayScore,
-			externalMatch.Status,
-		)
-		if err != nil {
-			return err
+			statusChanged := internalMatch.Status != externalMatch.Status
+
+			if !scoreChanged && !statusChanged {
+				continue
+			}
+
+			_, err = u.repo.UpdateLiveResult(
+				ctx,
+				internalMatch.ID,
+				apiFootballID,
+				externalMatch.HomeScore,
+				externalMatch.AwayScore,
+				externalMatch.Status,
+			)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
