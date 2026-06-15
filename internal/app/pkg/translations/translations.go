@@ -52,10 +52,13 @@ var TeamNames = map[string]string{
 	"Turkey":               "Turquia",
 	"Türkiye":              "Turquia",
 	"Sweden":               "Suécia",
-	"Bosnia-Herzegovina":   "Bosnia-Herzegovina",
-	"Bosnia & Herzegovina": "Bosnia-Herzegovina",
+	"Bosnia-Herzegovina":   "Bósnia-Herzegovina",
+	"Bosnia & Herzegovina": "Bósnia-Herzegovina",
 	"Iraq":                 "Iraque",
 	"Austria":              "Áustria",
+	"Panama":               "Panamá",
+	"Colombia":             "Colômbia",
+	"Catar":                "Catar",
 }
 
 func TranslateTeamName(name string) string {
