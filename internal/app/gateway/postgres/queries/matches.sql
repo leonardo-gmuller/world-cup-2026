@@ -134,7 +134,13 @@ LIMIT 1;
 -- name: ListMatchesToSyncLiveResults :many
 SELECT *
 FROM matches
-WHERE status IN ('scheduled', 'live')
-  AND starts_at BETWEEN NOW() - INTERVAL '4 hours'
-                    AND NOW() + INTERVAL '1 hour'
+WHERE deleted_at IS NULL
+  AND (
+    status = 'live'
+    OR (
+      status = 'scheduled'
+      AND starts_at BETWEEN NOW() - INTERVAL '15 minutes'
+                        AND NOW() + INTERVAL '15 minutes'
+    )
+  )
 ORDER BY starts_at;

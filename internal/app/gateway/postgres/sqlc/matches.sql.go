@@ -469,9 +469,15 @@ func (q *Queries) ListMatchesByStage(ctx context.Context, stage string) ([]Match
 const listMatchesToSyncLiveResults = `-- name: ListMatchesToSyncLiveResults :many
 SELECT id, uuid, external_id, stage, group_name, home_team_id, away_team_id, home_team_name, away_team_name, starts_at, home_score, away_score, status, winner_team_id, imported_at, created_at, updated_at, deleted_at, api_football_id, result_source, last_live_sync_at
 FROM matches
-WHERE status IN ('scheduled', 'live')
-  AND starts_at BETWEEN NOW() - INTERVAL '4 hours'
-                    AND NOW() + INTERVAL '1 hour'
+WHERE deleted_at IS NULL
+  AND (
+    status = 'live'
+    OR (
+      status = 'scheduled'
+      AND starts_at BETWEEN NOW() - INTERVAL '15 minutes'
+                        AND NOW() + INTERVAL '15 minutes'
+    )
+  )
 ORDER BY starts_at
 `
 
